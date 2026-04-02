@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/api/ai", "dest": "/api/ai.js" },
+    { "src": "/app", "dest": "/app.html" },
+    { "src": "/privacy", "dest": "/privacy.html" },
+    { "src": "/terms", "dest": "/terms.html" },
+    { "src": "/", "dest": "/index.html" }
+  ]
+}
