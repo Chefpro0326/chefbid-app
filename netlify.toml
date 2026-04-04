@@ -1,12 +1,4 @@
+
 [build]
   publish = "."
   functions = "function"
-```
-
-4. Commit directly to main
-
----
-
-Wait for Netlify to redeploy then test:
-```
-https://melodious-piroshki-35b96a.netlify.app/.netlify/functions/ai
