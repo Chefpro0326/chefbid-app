@@ -1,3 +1,5 @@
+
+  
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -780,7 +782,7 @@ body {
         <div class="card-head">📋 Event Setup</div>
         <div class="grid3">
           <div class="field"><label>Event Name</label><input type="text" id="evName" placeholder="Johnson Wedding Reception"></div>
-          <div class="field"><label>Guest Count</label><input type="number" id="evGuests" oninput="updateParseBtn()" placeholder="150" min="1" oninput="scheduleScaling()"></div>
+          <div class="field"><label>Guest Count</label><input type="number" id="evGuests" placeholder="150" min="1" oninput="scheduleScaling()"></div>
           <div class="field"><label>Event Date</label><input type="date" id="evDate"></div>
         </div>
         <div style="margin-top:14px" class="field">
@@ -799,32 +801,15 @@ body {
       </div>
 
       <!-- Ingredients -->
-      <div class="mono-label">MENU & INGREDIENTS</div>
+      <div class="mono-label">INGREDIENTS & MENU</div>
       <div class="card">
-        <div class="card-head">🍽️ Describe Your Menu <span style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--gold);font-weight:400;margin-left:8px">AI auto-generates all ingredients + quantities</span></div>
-
-        <!-- PRIMARY: AI Menu Parser -->
-        <div class="field">
-          <label>Describe your menu or paste a recipe</label>
-          <textarea id="evRecipe" rows="4" placeholder="e.g. 3-course plated dinner: Caesar salad, pan-seared salmon with roasted asparagus and garlic mashed potatoes, chocolate lava cake for dessert. Full service." style="min-height:90px"></textarea>
-        </div>
-        <button class="btn-gold btn-sm" onclick="aiParseMenu()" id="parseMenuBtn" style="margin-bottom:16px;width:100%">
-          ✦ AI — Generate Ingredients &amp; Portions for <span id="parseGuestCount">0</span> Guests
-        </button>
-        <div id="parseMenuStatus" style="display:none;font-size:0.8rem;color:var(--gold);font-family:'DM Mono',monospace;margin-bottom:12px;text-align:center">
-          <span class="ai-dot" style="display:inline-block;margin-right:6px"></span> AI is calculating portions...
-        </div>
-
-        <!-- Divider -->
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <div style="flex:1;height:1px;background:var(--border)"></div>
-          <div style="font-size:0.65rem;color:var(--ink-dim);font-family:'DM Mono',monospace;letter-spacing:1px">OR ADD MANUALLY</div>
-          <div style="flex:1;height:1px;background:var(--border)"></div>
-        </div>
-
-        <!-- MANUAL: ingredient rows -->
+        <div class="card-head">🥩 Ingredients <span style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--ink-dim);font-weight:400;margin-left:8px">Enter portion per person — totals auto-calculate</span></div>
         <div id="ingRows"></div>
-        <button class="add-row-btn" onclick="addIng()">+ Add Ingredient Manually</button>
+        <button class="add-row-btn" onclick="addIng()">+ Add Ingredient</button>
+        <div style="margin-top:16px" class="field">
+          <label>Or describe the menu / paste a recipe</label>
+          <textarea id="evRecipe" placeholder="e.g. Pan-seared salmon with roasted asparagus, garlic mashed potatoes, and dinner rolls. Classic plated service."></textarea>
+        </div>
       </div>
 
       <!-- Scaled Totals Output -->
@@ -1896,117 +1881,6 @@ function apiHeaders() {
 // AI ANALYSIS
 // ═══════════════════════════════════════════════
 let lastAnalysis = null;
-
-// ═══════════════════════════════════════════════
-// AI MENU PARSER — auto-generate ingredients from menu description
-// ═══════════════════════════════════════════════
-async function aiParseMenu() {
-  const recipe = document.getElementById('evRecipe').value.trim();
-  const guests = parseInt(document.getElementById('evGuests').value) || 0;
-
-  if (!recipe) { showToast('Please describe your menu first!'); return; }
-  if (!guests || guests < 1) { showToast('Please enter the number of guests first!'); return; }
-
-  const btn = document.getElementById('parseMenuBtn');
-  const status = document.getElementById('parseMenuStatus');
-  btn.disabled = true;
-  btn.textContent = '⏳ AI is working...';
-  status.style.display = 'block';
-
-  let headers;
-  try { headers = apiHeaders(); } catch(e) {
-    showToast('No API key — click Update API Key in sidebar');
-    btn.disabled = false;
-    btn.innerHTML = '✦ AI — Generate Ingredients &amp; Portions for <span id="parseGuestCount">' + guests + '</span> Guests';
-    status.style.display = 'none';
-    return;
-  }
-
-  const prompt = `You are a professional catering chef. A chef needs to prep for ${guests} guests.
-
-MENU: ${recipe}
-
-Your job: Extract every ingredient needed and calculate the exact purchase quantity for ${guests} guests with a 10% waste buffer.
-
-Rules:
-- Use professional catering portions (e.g. 6oz protein per person, 4oz starch, 3oz vegetable)
-- Include ALL ingredients: proteins, starches, vegetables, sauces, garnishes, bread, butter, etc.
-- Convert to practical purchase units (lbs for meat, oz for spices, each for items like lemons)
-- Round UP to nearest practical purchase amount
-
-Respond ONLY with valid JSON. No explanation, no markdown, no code fences. Just raw JSON:
-{
-  "ingredients": [
-    {"name": "Salmon Fillet", "portionPerPerson": 6, "unit": "oz", "totalWithBuffer": 412.5, "purchaseUnit": "lbs", "purchaseQty": 25.8},
-    {"name": "Asparagus", "portionPerPerson": 3, "unit": "oz", "totalWithBuffer": 206.25, "purchaseUnit": "lbs", "purchaseQty": 12.9}
-  ]
-}`;
-
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    const data = await res.json();
-    if (data.error) { throw new Error(data.error.message); }
-
-    const text = data.content?.map(i => i.text || '').join('') || '';
-    // Strip any markdown fences just in case
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-
-    if (!parsed.ingredients || !parsed.ingredients.length) {
-      throw new Error('No ingredients returned');
-    }
-
-    // Clear existing manual rows
-    document.getElementById('ingRows').innerHTML = '';
-
-    // Populate ingredient rows with AI data
-    parsed.ingredients.forEach(ing => {
-      const r = document.createElement('div');
-      r.className = 'row-grid ing-grid';
-      r.innerHTML = \`
-        <div class="field"><label>Ingredient</label><input type="text" value="\${escHtml(ing.name)}" placeholder="e.g. Chicken Breast" oninput="scheduleScaling()"></div>
-        <div class="field"><label>Portion / person</label><input type="number" value="\${ing.portionPerPerson}" step="0.1" min="0" oninput="scheduleScaling()"></div>
-        <div class="field"><label>Unit</label><select onchange="scheduleScaling()">
-          \${['oz','lbs','kg','cups','each','gallons','dozen','cases'].map(u => \`<option \${u===ing.unit?'selected':''} value="\${u}">\${u}</option>\`).join('')}
-        </select></div>
-        <div class="field"><label>&nbsp;</label><button class="icon-btn del-btn" onclick="this.closest('.row-grid').remove();scheduleScaling()">×</button></div>\`;
-      document.getElementById('ingRows').appendChild(r);
-    });
-
-    // Trigger scaling display
-    scheduleScaling();
-    showToast('✦ ' + parsed.ingredients.length + ' ingredients generated for ' + guests + ' guests!');
-    document.getElementById('ingRows').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  } catch(err) {
-    console.error('Menu parse error:', err);
-    showToast('Error: ' + err.message + ' — try again');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '✦ AI — Generate Ingredients &amp; Portions for <span id="parseGuestCount">' + guests + '</span> Guests';
-    status.style.display = 'none';
-  }
-}
-
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Update guest count in the AI parse button whenever guests field changes
-function updateParseBtn() {
-  const guests = document.getElementById('evGuests').value || '0';
-  const el = document.getElementById('parseGuestCount');
-  if (el) el.textContent = guests;
-}
 
 async function runAnalysis() {
   const guests = document.getElementById('evGuests').value || '100';
