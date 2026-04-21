@@ -1,0 +1,2699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChefBid PRO — AI Catering Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+:root {
+  --bg: #f5f0e8;
+  --bg2: #ede8df;
+  --surface: #ffffff;
+  --surface2: #faf8f4;
+  --border: #ddd8ce;
+  --border2: #c8c2b6;
+  --ink: #1a1816;
+  --ink-mid: #5a5650;
+  --ink-dim: #9a948c;
+  --gold: #b8860b;
+  --gold-light: #d4a020;
+  --gold-bg: rgba(184,134,11,0.08);
+  --gold-border: rgba(184,134,11,0.25);
+  --red: #c0392b;
+  --red-bg: rgba(192,57,43,0.08);
+  --green: #27735a;
+  --green-bg: rgba(39,115,90,0.1);
+  --radius: 10px;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow: 0 4px 20px rgba(0,0,0,0.1);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ═══ AUTH SCREEN ═══ */
+#authScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+#authScreen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(184,134,11,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(184,134,11,0.08) 0%, transparent 50%);
+}
+.auth-pattern {
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px
+  ), repeating-linear-gradient(
+    90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px
+  );
+}
+.auth-box {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%; max-width: 420px;
+  margin: 20px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+.auth-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem; font-weight: 700;
+  color: var(--gold-light);
+  text-align: center;
+  margin-bottom: 4px;
+  letter-spacing: -1px;
+}
+.auth-tagline {
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+.auth-tabs {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 28px;
+}
+.auth-tab {
+  flex: 1; padding: 8px;
+  border: none; border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; cursor: pointer;
+  transition: all 0.2s;
+}
+.auth-tab.active {
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 600;
+}
+.auth-field { margin-bottom: 16px; }
+.auth-field label {
+  display: block;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+  font-family: 'DM Mono', monospace;
+}
+.auth-field input {
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.auth-field input:focus { border-color: var(--gold); }
+.auth-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none; border-radius: 10px;
+  color: var(--ink); font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem; font-weight: 700;
+  padding: 14px; cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+}
+.auth-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(184,134,11,0.4); }
+.auth-error {
+  color: #e74c3c; font-size: 0.8rem;
+  text-align: center; margin-top: 10px;
+  min-height: 20px;
+}
+.auth-pro-badge {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.25);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 1px;
+}
+
+/* ═══ APP SHELL ═══ */
+#appShell { display: none; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: 240px;
+  background: var(--ink);
+  z-index: 50;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo .name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem; font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: -0.5px;
+}
+.sidebar-logo .sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem; color: rgba(255,255,255,0.25);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-top: 1px;
+}
+.user-pill {
+  margin: 16px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.user-avatar {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700; font-size: 1rem;
+  color: var(--ink); flex-shrink: 0;
+}
+.user-info .uname { color: white; font-size: 0.82rem; font-weight: 500; }
+.user-info .upro {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem; color: var(--gold-light);
+  letter-spacing: 1px;
+}
+.nav-section {
+  padding: 8px 12px 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem; color: rgba(255,255,255,0.2);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  margin: 2px 8px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.88rem;
+  border: none; background: transparent; width: calc(100% - 16px);
+  text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); }
+.nav-item.active { background: var(--gold-bg); color: var(--gold-light); border: 1px solid var(--gold-border); }
+.nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.logout-btn {
+  width: 100%; padding: 8px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; color: rgba(255,255,255,0.3);
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+  cursor: pointer; transition: all 0.2s;
+}
+.logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* MAIN CONTENT */
+.main-content {
+  margin-left: 240px;
+  min-height: 100vh;
+  padding: 32px;
+}
+
+/* PAGE HEADER */
+.page-header {
+  margin-bottom: 28px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 700;
+  color: var(--ink); line-height: 1.1;
+}
+.page-sub {
+  font-size: 0.82rem; color: var(--ink-dim);
+  margin-top: 4px; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.card-head {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 700;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+  color: var(--ink);
+}
+.mono-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; color: var(--gold);
+  letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* FORM */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+@media(max-width: 700px) {
+  .sidebar { width: 0; overflow: hidden; }
+  .main-content { margin-left: 0; padding: 16px; }
+  .grid2,.grid3,.grid4 { grid-template-columns: 1fr; }
+}
+
+.field label {
+  display: block; font-size: 0.75rem;
+  color: var(--ink-dim); margin-bottom: 5px;
+  font-family: 'DM Mono', monospace; letter-spacing: 0.3px;
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-bg);
+}
+.field textarea { resize: vertical; min-height: 70px; }
+
+/* TOGGLE */
+.toggle-group { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.t-btn {
+  flex: 1; padding: 9px 6px; border: none; cursor: pointer;
+  background: var(--surface2); color: var(--ink-dim);
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  transition: all 0.2s; border-right: 1px solid var(--border);
+}
+.t-btn:last-child { border-right: none; }
+.t-btn.active { background: var(--ink); color: white; font-weight: 600; }
+
+/* ROWS */
+.row-grid {
+  display: grid;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+.ing-grid { grid-template-columns: 2.5fr 0.8fr 0.9fr 36px; }
+.ven-grid { grid-template-columns: 1fr 1.2fr 0.8fr 0.8fr 36px; }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 7px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; transition: all 0.2s;
+}
+.del-btn { background: var(--red-bg); color: var(--red); }
+.del-btn:hover { background: var(--red); color: white; }
+.add-row-btn {
+  width: 100%; padding: 9px;
+  background: transparent; border: 1px dashed var(--border2);
+  border-radius: 8px; color: var(--ink-dim);
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s; margin-top: 4px;
+}
+.add-row-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-bg); }
+
+/* BUTTONS */
+.btn-primary {
+  background: var(--ink);
+  border: none; border-radius: 9px;
+  color: white; font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-weight: 700;
+  padding: 13px 24px; cursor: pointer;
+  transition: all 0.25s; letter-spacing: 0.3px;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover { background: var(--gold); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none; border-radius: 9px;
+  color: white; font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-weight: 700;
+  padding: 13px 24px; cursor: pointer;
+  transition: all 0.25s;
+}
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(184,134,11,0.3); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border2); border-radius: 9px;
+  color: var(--ink-mid); font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem; padding: 10px 18px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: var(--ink); color: var(--ink); }
+.btn-sm {
+  padding: 7px 14px; font-size: 0.8rem;
+  border-radius: 7px;
+}
+
+/* GENERATE BAR */
+.gen-bar {
+  display: flex; gap: 12px; align-items: center;
+  flex-wrap: wrap;
+}
+
+/* AI RESULT */
+.ai-result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 18px;
+  display: none;
+}
+.ai-result.show { display: block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+.ai-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  border-radius: 20px; padding: 3px 10px;
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.ai-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.ai-text { font-size: 0.9rem; line-height: 1.8; color: var(--ink-mid); }
+.ai-text strong { color: var(--ink); font-weight: 600; }
+.ai-text h3 { color: var(--gold); font-family: 'Cormorant Garamond', serif; font-size: 1rem; margin: 14px 0 4px; }
+
+/* COST TILES */
+.cost-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; margin-bottom: 18px; }
+.cost-tile {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.cost-tile.gold { border-color: var(--gold-border); background: var(--gold-bg); }
+.cost-tile .amt {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 700; color: var(--ink); display: block;
+}
+.cost-tile.gold .amt { color: var(--gold); font-size: 2.1rem; }
+.cost-tile .lbl {
+  font-family: 'DM Mono', monospace; font-size: 0.62rem;
+  color: var(--ink-dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 3px;
+}
+
+/* SUPPLY LIST */
+.supply-list { list-style: none; }
+.supply-list li {
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 0.87rem; color: var(--ink-mid);
+  display: flex; align-items: center; gap: 10px;
+}
+.supply-list li:last-child { border: none; }
+.supply-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+/* FOLLOW UP */
+.followup-row { display: flex; gap: 10px; margin-top: 16px; }
+.followup-row input { flex: 1; }
+.ask-btn {
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  border-radius: 8px; color: var(--gold);
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  padding: 0 18px; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.ask-btn:hover { background: var(--gold); color: white; }
+
+/* DASHBOARD */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 700; color: var(--ink);
+}
+.stat-lbl { font-size: 0.75rem; color: var(--ink-dim); margin-top: 2px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+
+/* EVENT HISTORY */
+.event-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: all 0.2s; box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+.event-card:hover { border-color: var(--gold-border); box-shadow: var(--shadow); transform: translateX(3px); }
+.event-info .ev-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 3px; }
+.event-info .ev-meta { font-size: 0.78rem; color: var(--ink-dim); font-family: 'DM Mono', monospace; }
+.event-cost { text-align: right; }
+.event-cost .ev-amt { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; color: var(--gold); }
+.event-cost .ev-guests { font-size: 0.72rem; color: var(--ink-dim); font-family: 'DM Mono', monospace; }
+.ev-badge {
+  font-family: 'DM Mono', monospace; font-size: 0.62rem;
+  padding: 3px 8px; border-radius: 4px; letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.ev-badge.full { background: var(--green-bg); color: var(--green); }
+.ev-badge.dropoff { background: var(--gold-bg); color: var(--gold); }
+.ev-badge.buffet { background: var(--red-bg); color: var(--red); }
+.empty-state { text-align: center; padding: 48px 20px; color: var(--ink-dim); }
+.empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 0.9rem; }
+
+/* VENDOR TABLE */
+.vendor-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.vendor-table th {
+  text-align: left; padding: 8px 12px;
+  background: var(--bg2); border-bottom: 2px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.62rem;
+  color: var(--ink-dim); letter-spacing: 1.5px; text-transform: uppercase;
+}
+.vendor-table td {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  color: var(--ink-mid);
+}
+.vendor-table tr:hover td { background: var(--surface2); }
+.price-best { color: var(--green); font-weight: 600; }
+.price-high { color: var(--red); }
+.avg-badge {
+  display: inline-block; background: var(--gold-bg);
+  border: 1px solid var(--gold-border); color: var(--gold);
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  padding: 1px 6px; border-radius: 4px;
+}
+
+/* MARGIN CALC */
+.margin-display {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin: 20px 0;
+}
+.margin-circle {
+  width: 120px; height: 120px; border-radius: 50%;
+  border: 6px solid var(--border);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: var(--surface);
+  position: relative; overflow: hidden;
+}
+.margin-pct { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; }
+.margin-pct.good { color: var(--green); }
+.margin-pct.ok { color: var(--gold); }
+.margin-pct.bad { color: var(--red); }
+.margin-lbl { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--ink-dim); }
+.margin-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.mb-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.mb-row:last-child { border: none; font-weight: 600; font-size: 0.95rem; }
+.mb-val { font-family: 'DM Mono', monospace; }
+.mb-val.pos { color: var(--green); }
+.mb-val.neg { color: var(--red); }
+
+/* LOADING */
+.loading-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold-light), var(--gold));
+  z-index: 1000; display: none;
+  animation: loadbar 1.5s ease infinite;
+}
+@keyframes loadbar { 0%{width:0;opacity:1} 70%{width:80%;opacity:1} 100%{width:100%;opacity:0} }
+.loading-bar.show { display: block; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--ink); color: white;
+  padding: 12px 20px; border-radius: 10px;
+  font-size: 0.85rem; box-shadow: var(--shadow-lg);
+  z-index: 999; opacity: 0; transform: translateY(10px);
+  transition: all 0.3s; pointer-events: none;
+  border-left: 3px solid var(--gold);
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* SECTION divider */
+.sec-divider {
+  display: flex; align-items: center; gap: 14px; margin: 24px 0 20px;
+}
+.sec-divider::before,.sec-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.sec-divider span {
+  font-family:'DM Mono',monospace; font-size:0.62rem;
+  color:var(--gold); letter-spacing:2px; text-transform:uppercase; white-space:nowrap;
+}
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; animation: fadeUp 0.3s ease; }
+
+/* PDF notice */
+.pdf-notice {
+  background: var(--green-bg); border: 1px solid rgba(39,115,90,0.2);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 0.8rem; color: var(--green);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.tag {
+  display: inline-block; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 4px;
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  color: var(--ink-dim); padding: 2px 7px; margin-right: 5px;
+}
+
+/* Scaled ingredient table */
+#scaledIngTable table { width:100%; border-collapse:collapse; font-size:0.83rem; }
+#scaledIngTable th {
+  background:var(--ink); color:white; text-align:left;
+  padding:9px 12px; font-family:'DM Mono',monospace;
+  font-size:0.62rem; letter-spacing:1px; text-transform:uppercase;
+  white-space:nowrap;
+}
+#scaledIngTable td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+#scaledIngTable tr:last-child td { border-bottom:none; }
+#scaledIngTable tr:hover td { background:var(--surface2); }
+#scaledIngTable .price-best { color:var(--green); font-weight:600; }
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  AUTH SCREEN                              -->
+<!-- ══════════════════════════════════════════ -->
+<div id="authScreen">
+  <div class="auth-pattern"></div>
+  <div class="auth-box">
+    <div class="auth-logo">ChefBid</div>
+    <div class="auth-tagline">PRO · AI Catering Intelligence</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuth('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuth('signup')">Create Account</button>
+    </div>
+    <div id="loginForm">
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="chef@restaurant.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPw" placeholder="••••••••"></div>
+      <button class="auth-btn" onclick="doLogin()">Sign In to ChefBid</button>
+    </div>
+    <div id="signupForm" style="display:none">
+      <div class="auth-field"><label>Your Name</label><input type="text" id="signupName" placeholder="Chef Marcus"></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="chef@restaurant.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPw" placeholder="Min 6 characters"></div>
+      <div class="auth-field"><label>Anthropic API Key</label><input type="password" id="signupApiKey" placeholder="sk-ant-..."></div>
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-bottom:12px;font-family:DM Mono,monospace;line-height:1.5">Get your key at console.anthropic.com → API Keys. Stored locally on your device only.</div>
+
+      <!-- PLAN SELECTOR -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Choose Your Plan</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div id="planBasicCard" onclick="selectPlan('basic')" style="border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 10px;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.03)">
+            <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Basic</div>
+            <div style="font-size:1.3rem;font-weight:700;color:rgba(255,255,255,0.85);font-family:'Cormorant Garamond',serif">$19<span style="font-size:0.7rem;font-weight:400;color:rgba(255,255,255,0.35)">/mo</span></div>
+            <div style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:6px;line-height:1.6">✓ 10 bids/month<br>✓ Cost calculator<br>✓ PDF export<br>✗ AI analysis<br>✗ Client payments</div>
+          </div>
+          <div id="planProCard" onclick="selectPlan('pro')" style="border:1px solid rgba(184,134,11,0.6);border-radius:10px;padding:12px 10px;cursor:pointer;transition:all 0.2s;background:rgba(184,134,11,0.08)">
+            <div style="font-size:0.65rem;color:var(--gold-light);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">✦ PRO</div>
+            <div style="font-size:1.3rem;font-weight:700;color:var(--gold-light);font-family:'Cormorant Garamond',serif">$29<span style="font-size:0.7rem;font-weight:400;color:rgba(255,255,255,0.35)">/mo</span></div>
+            <div style="font-size:0.62rem;color:rgba(255,255,255,0.5);margin-top:6px;line-height:1.6">✓ Unlimited bids<br>✓ AI analysis<br>✓ Vendor compare<br>✓ Labor costing<br>✓ Client payments</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="auth-btn" onclick="doSignup()" id="signupBtn">Continue to Payment →</button>
+      <div style="font-size:0.62rem;color:rgba(255,255,255,0.2);text-align:center;margin-top:8px;font-family:'DM Mono',monospace">🔒 Secured by Stripe · Cancel anytime</div>
+    </div>
+    <div id="loginApiWrap"><div class="auth-field" style="margin-top:10px"><label>API Key (if first login on this device)</label><input type="password" id="loginApiKey" placeholder="sk-ant-..."></div></div><div class="auth-error" id="authError"></div>
+    <div class="auth-pro-badge" id="authPlanBadge">✦ PRO PLAN · All Features Unlocked</div>
+  </div>
+</div>
+
+<!-- PRICING SCREEN -->
+<div id="pricingScreen" style="display:none;min-height:100vh;background:#1a1816;align-items:center;justify-content:center;flex-direction:column;padding:40px 20px">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:#d4a020;text-align:center;margin-bottom:6px">Choose Your Plan</div>
+  <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:36px">Cancel anytime · Secured by Stripe</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:560px;width:100%">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px 22px">
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Basic</div>
+      <div style="font-size:2.4rem;font-weight:700;color:#fff;font-family:'Cormorant Garamond',serif;margin-bottom:4px">$19<span style="font-size:1rem;font-weight:400;color:rgba(255,255,255,0.3)">/month</span></div>
+      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:20px">For chefs getting started</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);line-height:2;margin-bottom:24px">✓ Up to 10 bids/month<br>✓ Ingredient scaling<br>✓ Cost calculator<br>✓ PDF export<br>✗ AI analysis<br>✗ Vendor comparison<br>✗ Client payment links</div>
+      <button onclick="startCheckout('basic')" style="width:100%;padding:13px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer">Get Basic</button>
+    </div>
+    <div style="background:rgba(184,134,11,0.1);border:1px solid rgba(184,134,11,0.5);border-radius:16px;padding:28px 22px;position:relative">
+      <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#d4a020;color:#1a1816;font-size:0.6rem;font-weight:700;padding:3px 12px;border-radius:99px;font-family:'DM Mono',monospace;letter-spacing:1px;white-space:nowrap">MOST POPULAR</div>
+      <div style="font-size:0.65rem;color:#d4a020;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">✦ PRO</div>
+      <div style="font-size:2.4rem;font-weight:700;color:#d4a020;font-family:'Cormorant Garamond',serif;margin-bottom:4px">$29<span style="font-size:1rem;font-weight:400;color:rgba(255,255,255,0.3)">/month</span></div>
+      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:20px">Full access · Built for pros</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:2;margin-bottom:24px">✓ Unlimited bids<br>✓ AI pricing analysis<br>✓ Vendor price compare<br>✓ Labor costing tools<br>✓ Profit margin tracking<br>✓ <strong style="color:#d4a020">Client payment links</strong><br>✓ Priority support</div>
+      <button onclick="startCheckout('pro')" style="width:100%;padding:13px;background:#d4a020;color:#1a1816;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer">Get PRO — $29/mo</button>
+    </div>
+  </div>
+  <div style="margin-top:20px;font-size:0.68rem;color:rgba(255,255,255,0.2);font-family:'DM Mono',monospace;text-align:center">🔒 Payments processed securely by Stripe</div>
+  <button onclick="doLogout()" style="margin-top:16px;background:none;border:none;color:rgba(255,255,255,0.2);font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif">← Sign out</button>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  APP SHELL                                -->
+<!-- ══════════════════════════════════════════ -->
+<div id="appShell">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">ChefBid</div>
+      <div class="sub">PRO · AI Intelligence</div>
+    </div>
+    <div class="user-pill">
+      <div class="user-avatar" id="userAvatar">C</div>
+      <div class="user-info">
+        <div class="uname" id="userNameDisplay">Chef</div>
+        <div class="upro" id="userPlanDisplay">PRO PLAN</div>
+      </div>
+    </div>
+    <div class="nav-section">Main</div>
+    <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="nav-icon">◈</span> Dashboard</button>
+    <button class="nav-item" onclick="showPage('newEvent')" id="nav-newEvent"><span class="nav-icon">✦</span> New Event</button>
+    <button class="nav-item" onclick="showPage('events')" id="nav-events"><span class="nav-icon">📋</span> Saved Events</button>
+    <div class="nav-section">Finance</div>
+    <button class="nav-item" onclick="showPage('vendors')" id="nav-vendors"><span class="nav-icon">🏪</span> Vendor Tracker</button>
+    <button class="nav-item" onclick="showPage('margins')" id="nav-margins"><span class="nav-icon">📊</span> Profit & Margins</button>
+    <button class="nav-item" onclick="showPage('clientpay')" id="nav-clientpay"><span class="nav-icon">💳</span> Client Payments</button>
+    <div class="sidebar-footer">
+      <div id="apiKeyStatus" onclick="updateApiKey()" style="font-size:0.72rem;padding:8px 4px;margin-bottom:8px;cursor:pointer;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Checking key...</div>
+      <button class="logout-btn" onclick="updateApiKey()" style="margin-bottom:6px;color:rgba(255,255,255,0.3)">🔑 Update API Key</button>
+      <button class="logout-btn" onclick="doLogout()">↩ Sign Out</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="main-content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="dashGreeting">Good morning, Chef</div>
+          <div class="page-sub">YOUR CATERING INTELLIGENCE HUB</div>
+        </div>
+        <button class="btn-gold" onclick="showPage('newEvent')">+ New Event Analysis</button>
+      </div>
+      <div class="stats-row" id="dashStats">
+        <div class="stat-card"><div class="stat-num" id="statEvents">0</div><div class="stat-lbl">Events Saved</div></div>
+        <div class="stat-card"><div class="stat-num" id="statGuests">0</div><div class="stat-lbl">Total Guests Served</div></div>
+        <div class="stat-card"><div class="stat-num" id="statVendors">0</div><div class="stat-lbl">Vendors Tracked</div></div>
+        <div class="stat-card"><div class="stat-num" id="statRevenue">$0</div><div class="stat-lbl">Events Revenue Est.</div></div>
+      </div>
+      <div class="mono-label">RECENT EVENTS</div>
+      <div id="dashRecentEvents"><div class="empty-state"><div class="empty-icon">🍽️</div><p>No events yet. Create your first analysis to get started.</p></div></div>
+    </div>
+
+    <!-- ── NEW EVENT ── -->
+    <div class="page" id="page-newEvent">
+      <div class="page-header">
+        <div>
+          <div class="page-title">New Event Analysis</div>
+          <div class="page-sub">AI-POWERED COST INTELLIGENCE</div>
+        </div>
+      </div>
+
+      <!-- Event Details -->
+      <div class="mono-label">EVENT DETAILS</div>
+      <div class="card">
+        <div class="card-head">📋 Event Setup</div>
+        <div class="grid3">
+          <div class="field"><label>Event Name</label><input type="text" id="evName" placeholder="Johnson Wedding Reception"></div>
+          <div class="field"><label>Guest Count</label><input type="number" id="evGuests" placeholder="150" min="1" oninput="scheduleScaling()"></div>
+          <div class="field"><label>Event Date</label><input type="date" id="evDate"></div>
+        </div>
+        <div style="margin-top:14px" class="field">
+          <label>Service Type</label>
+          <div class="toggle-group">
+            <button class="t-btn active" onclick="setSvc('full',this)">🍽️ Full Service</button>
+            <button class="t-btn" onclick="setSvc('dropoff',this)">📦 Drop Off</button>
+            <button class="t-btn" onclick="setSvc('buffet',this)">🥘 Buffet</button>
+            <button class="t-btn" onclick="setSvc('cocktail',this)">🍸 Cocktail</button>
+          </div>
+        </div>
+        <div style="margin-top:14px" class="field">
+          <label>Client Budget (optional)</label>
+          <input type="number" id="evBudget" placeholder="e.g. 5000">
+        </div>
+      </div>
+
+      <!-- Ingredients -->
+      <div class="mono-label">INGREDIENTS & MENU</div>
+      <div class="card">
+        <div class="card-head">🥩 Ingredients <span style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--ink-dim);font-weight:400;margin-left:8px">Enter portion per person — totals auto-calculate</span></div>
+        <div id="ingRows"></div>
+        <button class="add-row-btn" onclick="addIng()">+ Add Ingredient</button>
+        <div style="margin-top:16px" class="field">
+          <label>Or describe the menu / paste a recipe</label>
+          <textarea id="evRecipe" placeholder="e.g. Pan-seared salmon with roasted asparagus, garlic mashed potatoes, and dinner rolls. Classic plated service."></textarea>
+        </div>
+      </div>
+
+      <!-- Scaled Totals Output -->
+      <div id="scaledIngSection" style="display:none;margin-bottom:18px">
+        <div class="mono-label">SCALED QUANTITIES + VENDOR COST BREAKDOWN</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:14px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700">📊 Order Sheet</div>
+            <div style="font-size:0.78rem;color:var(--ink-dim);font-family:'DM Mono',monospace" id="scaledGuestLabel"></div>
+          </div>
+          <div style="overflow-x:auto">
+            <div id="scaledIngTable"></div>
+          </div>
+          <div id="foodCostSummary" style="display:none;padding:16px 18px;border-top:1px solid var(--border)"></div>
+        </div>
+      </div>
+
+      <!-- Vendors -->
+      <div class="mono-label">VENDOR COMPARISON</div>
+      <div class="card">
+        <div class="card-head">🏪 AI Vendor Price Lookup</div>
+        <div style="font-size:0.8rem;color:var(--ink-dim);margin-bottom:14px">Enter up to 3 vendor names — AI instantly looks up current market prices for your ingredients and picks the best deal.</div>
+        <div class="grid3" style="margin-bottom:12px">
+          <div class="field"><label>Vendor 1</label><input type="text" id="ven1" placeholder="e.g. Sysco"></div>
+          <div class="field"><label>Vendor 2</label><input type="text" id="ven2" placeholder="e.g. US Foods"></div>
+          <div class="field"><label>Vendor 3</label><input type="text" id="ven3" placeholder="e.g. Restaurant Depot"></div>
+        </div>
+        <button class="btn-primary btn-sm" onclick="lookupVendorPrices()" id="vendorLookupBtn">🔍 AI Lookup Prices for My Ingredients</button>
+        <div id="vendorPriceResults" style="display:none;margin-top:16px">
+          <div class="mono-label">AI PRICE COMPARISON</div>
+          <div style="overflow-x:auto">
+            <table class="vendor-table" id="vendorCompareTable">
+              <thead><tr id="vendorCompareHead"></tr></thead>
+              <tbody id="vendorCompareBody"></tbody>
+            </table>
+          </div>
+          <div id="vendorBestPick" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+
+      <!-- Staff -->
+      <div class="mono-label">STAFF & LABOR</div>
+      <div class="card">
+        <div class="card-head">👨‍🍳 Labor Planning</div>
+        <div class="grid3">
+          <div class="field"><label>Head Chefs (#)</label><input type="number" id="sChef" placeholder="1" min="0" oninput="updateLaborDisplay()"></div>
+          <div class="field"><label>Line / Prep Cooks (#)</label><input type="number" id="sCook" placeholder="2" min="0" oninput="updateLaborDisplay()"></div>
+          <div class="field" id="serverStaffRow"><label id="serverLabel">Servers / Staff (#)</label><input type="number" id="sServer" placeholder="1" min="0" oninput="updateLaborDisplay()"></div>
+          <div class="field"><label>Chef Rate ($/hr)</label><input type="number" id="rChef" placeholder="45" min="0" oninput="updateLaborDisplay()"></div>
+          <div class="field"><label>Cook Rate ($/hr)</label><input type="number" id="rCook" placeholder="22" min="0" oninput="updateLaborDisplay()"></div>
+          <div class="field" id="serverRateRow"><label>Server Rate ($/hr)</label><input type="number" id="rServer" placeholder="15" min="0" oninput="updateLaborDisplay()"></div>
+        </div>
+        <div id="svcLaborNote" style="display:none;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:8px;padding:10px 14px;font-size:0.8rem;color:var(--ink-mid);margin-top:12px"></div>
+        <div class="grid3" style="margin-top:12px" id="prepHoursRow">
+          <div class="field"><label id="hoursLabel">Event Duration (hrs)</label><input type="number" id="evHours" placeholder="3" min="0" step="0.5" oninput="updateLaborDisplay()"></div>
+          <div class="field"><label>Overhead / Misc ($)</label><input type="number" id="evOverhead" placeholder="100" min="0" oninput="updateLaborDisplay()"></div>
+          <div class="field"><label>Target Margin (%)</label><input type="number" id="evMargin" placeholder="30" min="0" max="100"></div>
+        </div>
+        <div class="grid3" style="margin-top:10px;display:none" id="delivHoursRow">
+          <div class="field"><label>Delivery / Setup Time (hrs)</label><input type="number" id="delivHours" placeholder="1" min="0" step="0.5" oninput="updateLaborDisplay()"></div>
+          <div class="field"><label>Driver / Delivery Staff (#)</label><input type="number" id="sDeliv" placeholder="1" min="0" oninput="updateLaborDisplay()"></div>
+          <div class="field"><label>Driver Rate ($/hr)</label><input type="number" id="rDeliv" placeholder="18" min="0" oninput="updateLaborDisplay()"></div>
+        </div>
+
+        <!-- Live Labor Breakdown -->
+        <div id="laborBreakdown" style="display:none;margin-top:18px;border-top:1px solid var(--border);padding-top:16px">
+          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">LIVE LABOR BREAKDOWN</div>
+          <table style="width:100%;border-collapse:collapse;font-size:0.87rem">
+            <thead>
+              <tr style="background:var(--bg2)">
+                <th style="text-align:left;padding:7px 10px;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink-dim);letter-spacing:1px;text-transform:uppercase">Role</th>
+                <th style="text-align:center;padding:7px 10px;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink-dim);letter-spacing:1px;text-transform:uppercase"># Staff</th>
+                <th style="text-align:center;padding:7px 10px;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink-dim);letter-spacing:1px;text-transform:uppercase">Rate/hr</th>
+                <th style="text-align:center;padding:7px 10px;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink-dim);letter-spacing:1px;text-transform:uppercase">Hours</th>
+                <th style="text-align:right;padding:7px 10px;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink-dim);letter-spacing:1px;text-transform:uppercase">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="laborRows"></tbody>
+            <tfoot id="laborTotals"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="gen-bar">
+        <button class="btn-gold" style="flex:1;padding:15px;font-size:1.1rem" onclick="runAnalysis()" id="genBtn">✦ Generate Full AI Analysis</button>
+        <button class="btn-outline" onclick="clearForm()">Clear</button>
+      </div>
+
+      <!-- AI RESULTS -->
+      <div id="aiResultSection" class="ai-result" style="margin-top:20px">
+        <div class="ai-badge"><div class="ai-dot"></div> ChefBid AI — Event Report</div>
+        <div class="ai-text" id="aiMainText"></div>
+      </div>
+
+      <div id="costTileSection" style="display:none;margin-top:4px">
+        <div class="cost-tiles" id="costTiles"></div>
+      </div>
+
+      <div id="supplySection" style="display:none" class="card">
+        <div class="card-head">📦 Supply Checklist</div>
+        <ul class="supply-list" id="supplyListEl"></ul>
+      </div>
+
+      <div id="followUpSection" style="display:none" class="card">
+        <div class="card-head">💬 Ask Your AI Sous Chef</div>
+        <div style="font-size:0.8rem;color:var(--ink-dim);margin-bottom:10px">Follow-up questions about this event — substitutions, cost cuts, timing, anything.</div>
+        <div class="followup-row">
+          <div class="field" style="flex:1;margin:0"><input type="text" id="fuInput" placeholder="e.g. How do I cut food cost by 20% without sacrificing quality?"></div>
+          <button class="ask-btn" onclick="askFollowUp()">Ask AI ›</button>
+        </div>
+        <div id="fuResponse" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+          <div class="ai-badge"><div class="ai-dot"></div> AI Response</div>
+          <div class="ai-text" id="fuText"></div>
+        </div>
+      </div>
+
+      <div id="saveEventSection" style="display:none;margin-top:8px">
+        <div class="pdf-notice" style="margin-bottom:12px">✓ Analysis complete — save this event to your account or export as PDF</div>
+        <div class="gen-bar">
+          <button class="btn-primary" onclick="saveCurrentEvent()">💾 Save Event to Account</button>
+          <button class="btn-outline" onclick="exportPDF()">⬇ Export PDF Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SAVED EVENTS ── -->
+    <div class="page" id="page-events">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Saved Events</div>
+          <div class="page-sub">YOUR EVENT HISTORY & RECORDS</div>
+        </div>
+        <button class="btn-gold" onclick="showPage('newEvent')">+ New Event</button>
+      </div>
+      <div id="eventsList"></div>
+    </div>
+
+    <!-- ── VENDOR TRACKER ── -->
+    <div class="page" id="page-vendors">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Vendor Price Tracker</div>
+          <div class="page-sub">DOLLAR COST AVERAGING · BEST BUY ANALYSIS</div>
+        </div>
+        <button class="btn-primary btn-sm" onclick="showAddVendorModal()">+ Log Price</button>
+      </div>
+      <div class="card">
+        <div class="card-head">📈 Add Price Entry</div>
+        <div class="grid4" id="vendorLogGrid">
+          <div class="field"><label>Vendor</label><input type="text" id="vlVendor" placeholder="Sysco"></div>
+          <div class="field"><label>Ingredient</label><input type="text" id="vlIngredient" placeholder="Chicken Breast"></div>
+          <div class="field"><label>Price / Unit ($)</label><input type="number" id="vlPrice" placeholder="3.49" step="0.01"></div>
+          <div class="field"><label>Unit</label><select id="vlUnit"><option>lb</option><option>oz</option><option>kg</option><option>each</option><option>case</option><option>gallon</option><option>dozen</option></select></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-primary btn-sm" onclick="logVendorPrice()">Log Price</button>
+          <span style="font-size:0.78rem;color:var(--ink-dim);align-self:center">Date auto-recorded. Track prices over time to see trends.</span>
+        </div>
+      </div>
+      <div class="mono-label">PRICE HISTORY & AVERAGES</div>
+      <div class="card" style="overflow-x:auto">
+        <table class="vendor-table" id="vendorTable">
+          <thead><tr><th>Ingredient</th><th>Vendor</th><th>Latest Price</th><th>Avg Price</th><th>Unit</th><th>Entries</th><th>Date</th></tr></thead>
+          <tbody id="vendorTableBody"></tbody>
+        </table>
+        <div id="vendorEmpty" style="text-align:center;padding:32px;color:var(--ink-dim);font-size:0.85rem">No vendor data yet. Log your first price above.</div>
+      </div>
+    </div>
+
+    <!-- ── PROFIT & MARGINS ── -->
+    <div class="page" id="page-margins">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Profit & Margin Calculator</div>
+          <div class="page-sub">MENU PRICING · PROFITABILITY ANALYSIS</div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="card">
+            <div class="card-head">💰 Event Pricing</div>
+            <div class="field"><label>Event / Menu Name</label><input type="text" id="mpName" placeholder="Saturday Wedding Dinner"></div>
+            <div class="field" style="margin-top:12px"><label>Total Food Cost ($)</label><input type="number" id="mpFood" placeholder="1800" oninput="calcMargin()"></div>
+            <div class="field" style="margin-top:12px"><label>Total Labor Cost ($)</label><input type="number" id="mpLabor" placeholder="960" oninput="calcMargin()"></div>
+            <div class="field" style="margin-top:12px"><label>Overhead / Supplies ($)</label><input type="number" id="mpOverhead" placeholder="300" oninput="calcMargin()"></div>
+            <div class="field" style="margin-top:12px"><label>Your Asking Price ($)</label><input type="number" id="mpAskPrice" placeholder="4500" oninput="calcMargin()"></div>
+            <div class="field" style="margin-top:12px"><label>Number of Guests</label><input type="number" id="mpGuests" placeholder="100" oninput="calcMargin()"></div>
+          </div>
+          <div class="card" style="margin-top:0">
+            <div class="card-head">🎯 Recommended Price Targets</div>
+            <div id="priceTargets">
+              <div style="font-size:0.82rem;color:var(--ink-dim)">Fill in costs above to see recommendations.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head">📊 Margin Analysis</div>
+            <div style="text-align:center;padding:10px 0">
+              <div class="margin-circle" id="marginCircle">
+                <div class="margin-pct" id="marginPct">—</div>
+                <div class="margin-lbl">MARGIN</div>
+              </div>
+            </div>
+            <div id="marginBreakdown">
+              <div style="font-size:0.82rem;color:var(--ink-dim);text-align:center;margin-top:12px">Enter your numbers to see the full breakdown.</div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:0">
+            <div class="card-head">📋 Per-Person Breakdown</div>
+            <div id="perPersonBreakdown">
+              <div style="font-size:0.82rem;color:var(--ink-dim)">Fill in costs and guest count to see per-person analysis.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Pricing Advice -->
+      <div class="card">
+        <div class="card-head">🤖 AI Pricing Strategy</div>
+        <div style="font-size:0.8rem;color:var(--ink-dim);margin-bottom:12px">Describe your event and get AI-powered pricing strategy and market rate guidance.</div>
+        <div class="field"><textarea id="pricingContext" placeholder="e.g. Full service dinner for 120 guests, Memphis TN, Saturday wedding, 4-course plated meal, prime rib and salmon options..." style="min-height:80px"></textarea></div>
+        <button class="btn-primary btn-sm" style="margin-top:10px" onclick="getPricingAdvice()">Get AI Pricing Strategy</button>
+        <div id="pricingAdviceResult" class="ai-result" style="margin-top:14px;padding:16px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  CLIENT PAYMENTS PAGE                     -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="page" id="page-clientpay">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Client Payment Links</div>
+          <div class="page-sub">SEND INVOICES · COLLECT PAYMENTS</div>
+        </div>
+      </div>
+
+      <!-- PRO GATE: show only if pro plan -->
+      <div id="clientPayGate" style="display:none;text-align:center;padding:60px 20px">
+        <div style="font-size:3rem;margin-bottom:16px">💳</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ink);margin-bottom:8px">PRO Feature</div>
+        <div style="font-size:0.88rem;color:var(--ink-dim);margin-bottom:24px;max-width:320px;margin-left:auto;margin-right:auto">Client payment links are available on the PRO plan. Upgrade to send invoices your clients can pay online.</div>
+        <button onclick="startCheckout('pro')" style="background:var(--gold);color:#fff;border:none;border-radius:10px;padding:14px 28px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer">Upgrade to PRO — $29/mo</button>
+      </div>
+
+      <!-- PAYMENT LINK CREATOR (PRO only) -->
+      <div id="clientPayContent">
+        <div class="grid2">
+          <div>
+            <div class="card">
+              <div class="card-head">💳 Create Payment Link</div>
+              <div class="field"><label>Client Name</label><input type="text" id="cpClientName" placeholder="John & Sarah Smith"></div>
+              <div class="field" style="margin-top:12px"><label>Event Description</label><input type="text" id="cpDesc" placeholder="Wedding Reception — June 14th"></div>
+              <div class="field" style="margin-top:12px"><label>Amount to Charge ($)</label><input type="number" id="cpAmount" placeholder="4500" min="1" step="0.01"></div>
+              <div class="field" style="margin-top:12px"><label>Client Email (optional)</label><input type="email" id="cpEmail" placeholder="client@email.com"></div>
+              <button class="btn-primary" style="margin-top:16px;width:100%" onclick="createPaymentLink()">
+                Generate Payment Link →
+              </button>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="cpResultCard" style="display:none">
+              <div class="card-head">✅ Payment Link Ready</div>
+              <div style="font-size:0.82rem;color:var(--ink-dim);margin-bottom:12px">Share this link with your client. They'll be able to pay securely via Stripe.</div>
+              <div id="cpLinkDisplay" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink);word-break:break-all;margin-bottom:12px;line-height:1.6"></div>
+              <div style="display:flex;gap:8px">
+                <button onclick="copyPaymentLink()" style="flex:1;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.82rem;cursor:pointer">📋 Copy Link</button>
+                <button onclick="emailPaymentLink()" style="flex:1;padding:10px;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.82rem;cursor:pointer">✉️ Open Email</button>
+              </div>
+              <div id="cpLinkMeta" style="font-size:0.72rem;color:var(--ink-dim);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"></div>
+            </div>
+            <div class="card">
+              <div class="card-head">📋 How It Works</div>
+              <div style="font-size:0.82rem;color:var(--ink-dim);line-height:1.9">
+                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">1.</span> Fill in client details and the amount owed</div>
+                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">2.</span> Click Generate — a secure Stripe payment page is created instantly</div>
+                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">3.</span> Copy and text or email the link to your client</div>
+                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">4.</span> Client clicks the link and pays by card — no account needed</div>
+                <div style="display:flex;gap:10px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">5.</span> Funds deposit to your Stripe account within 2 business days</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /appShell -->
+
+<script>
+// ═══════════════════════════════════════════════
+// INIT — check for client pay link on page load
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('pay') === '1') {
+    handleClientPayLink();
+    return;
+  }
+  if (params.get('clientpay') === 'success') {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    // Show success to client
+    document.body.innerHTML = '<div style="min-height:100vh;background:#1a1816;display:flex;align-items:center;justify-content:center"><div style="text-align:center;color:#fff"><div style="font-size:4rem;margin-bottom:16px">✅</div><div style="font-family:Cormorant Garamond,serif;font-size:2rem;color:#d4a020;margin-bottom:8px">Payment Successful!</div><div style="color:rgba(255,255,255,0.5);font-size:0.9rem">Thank you! Your payment has been received.</div></div></div>';
+    return;
+  }
+});
+
+// ═══════════════════════════════════════════════
+// DATA LAYER — localStorage persistence
+// ═══════════════════════════════════════════════
+const DB = {
+  get: k => JSON.parse(localStorage.getItem('cb_'+k) || 'null'),
+  set: (k,v) => localStorage.setItem('cb_'+k, JSON.stringify(v)),
+  del: k => localStorage.removeItem('cb_'+k)
+};
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+let currentUser = null;
+let currentAuthMode = 'login';
+
+function switchAuth(mode) {
+  currentAuthMode = mode;
+  document.getElementById('loginForm').style.display = mode==='login'?'block':'none';
+  document.getElementById('signupForm').style.display = mode==='signup'?'block':'none';
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='signup')));
+  document.getElementById('authError').textContent = '';
+}
+
+function doSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pw = document.getElementById('signupPw').value;
+  const apiKey = document.getElementById('signupApiKey').value.trim();
+  if(!name||!email||!pw) { setAuthError('Please fill all fields.'); return; }
+  if(pw.length < 6) { setAuthError('Password must be at least 6 characters.'); return; }
+  if(!apiKey||!apiKey.startsWith('sk-')) { setAuthError('Please enter a valid Anthropic API key (starts with sk-).'); return; }
+  const users = DB.get('users') || {};
+  if(users[email]) { setAuthError('Account already exists. Sign in instead.'); return; }
+  // Save with pending plan — activated after Stripe payment
+  users[email] = { name, email, pw, created: new Date().toISOString(), plan: 'pending' };
+  DB.set('users', users);
+  DB.set('events_'+email, []);
+  DB.set('vendors_'+email, []);
+  DB.set('apikey_'+email, apiKey);
+  DB.set('pendingPlan_'+email, selectedPlan);
+  // Log in then redirect to Stripe
+  currentUser = { name, email };
+  DB.set('currentUser', currentUser);
+  startCheckout(selectedPlan);
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  if(!email||!pw) { setAuthError('Please enter email and password.'); return; }
+  const users = DB.get('users') || {};
+  if(!users[email] || users[email].pw !== pw) { setAuthError('Invalid email or password.'); return; }
+  const apiKeyInput = document.getElementById('loginApiKey').value.trim();
+  if(apiKeyInput && apiKeyInput.startsWith('sk-')) {
+    DB.set('apikey_'+email, apiKeyInput);
+  }
+  if(!DB.get('apikey_'+email)) { setAuthError('Please enter your Anthropic API key on first login.'); return; }
+  loginUser(users[email]);
+}
+
+function loginUser(user) {
+  // Always ensure email is on the object
+  currentUser = { name: user.name, email: user.email };
+  DB.set('currentUser', currentUser);
+
+  // Check for Stripe return FIRST
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    handleStripeReturn();
+  } else if (params.get('pay') === '1') {
+    handleClientPayLink();
+    return;
+  } else if (params.get('payment') === 'cancel') {
+    handleStripeReturn();
+    return;
+  }
+
+  // Check plan status
+  const users = DB.get('users') || {};
+  const userRecord = users[user.email] || {};
+  const plan = userRecord.plan;
+
+  // If no active plan, show pricing screen
+  if (!plan || plan === 'pending') {
+    document.getElementById('authScreen').style.display = 'none';
+    showPricingScreen();
+    return;
+  }
+
+  // Plan is active — show the app
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('pricingScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  document.getElementById('userAvatar').textContent = (user.name||'C')[0].toUpperCase();
+  document.getElementById('userNameDisplay').textContent = user.name || 'Chef';
+  const hr = new Date().getHours();
+  document.getElementById('dashGreeting').textContent = `${hr<12?'Good morning':hr<17?'Good afternoon':'Good evening'}, ${(user.name||'Chef').split(' ')[0]}`;
+  updateApiKeyStatus();
+  updatePlanUI(plan);
+  refreshDashboard();
+  renderVendorTable();
+  // Handle any Stripe returns
+  handleStripeReturn();
+}
+
+function updateApiKey() {
+  const current = currentUser ? DB.get('apikey_'+currentUser.email) : null;
+  const hint = current ? 'Current key: ' + current.slice(0,14) + '...' : 'No key saved yet';
+  const key = prompt('Enter your Anthropic API key\n' + hint + '\n\nGet it at: console.anthropic.com → API Keys');
+  if(!key) return;
+  const cleaned = key.trim();
+  if(cleaned.startsWith('sk-') && currentUser) {
+    DB.set('apikey_'+currentUser.email, cleaned);
+    updateApiKeyStatus();
+    showToast('✓ API key saved!');
+  } else {
+    showToast('Invalid key — must start with sk-');
+  }
+}
+
+function updateApiKeyStatus() {
+  if(!currentUser) return;
+  const key = DB.get('apikey_'+currentUser.email);
+  const el = document.getElementById('apiKeyStatus');
+  if(!el) return;
+  if(key) {
+    el.innerHTML = '<span style="color:var(--green-bg);filter:brightness(3)">●</span> API Key: <span style="font-family:DM Mono,monospace;font-size:0.7rem">' + key.slice(0,14) + '...</span>';
+    el.style.color = 'rgba(255,255,255,0.35)';
+  } else {
+    el.innerHTML = '<span style="color:#e74c3c">●</span> <span style="color:#e74c3c">No API Key — Click to Add</span>';
+    el.onclick = updateApiKey;
+    el.style.cursor = 'pointer';
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  DB.del('currentUser');
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authError').textContent = '';
+}
+
+function setAuthError(msg) {
+  document.getElementById('authError').textContent = msg;
+}
+
+// Auto-login if session exists
+window.addEventListener('load', () => {
+  const u = DB.get('currentUser');
+  if(u) loginUser(u);
+  // init form rows
+  addIng(); addIng(); addIng();
+  document.getElementById('evDate').valueAsDate = new Date();
+  calcMargin();
+});
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function showPage(name) {
+  // PRO gate for client payments page
+  if (name === 'clientpay') {
+    const plan = getUserPlan();
+    const gate = document.getElementById('clientPayGate');
+    const cont = document.getElementById('clientPayContent');
+    if (gate && cont) {
+      if (plan === 'pro') { gate.style.display='none'; cont.style.display='block'; }
+      else { gate.style.display='block'; cont.style.display='none'; }
+    }
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  document.getElementById('nav-'+name)?.classList.add('active');
+  if(name==='dashboard') refreshDashboard();
+  if(name==='events') renderEvents();
+  if(name==='vendors') renderVendorTable();
+}
+
+// ═══════════════════════════════════════════════
+// FORM ROWS
+// ═══════════════════════════════════════════════
+let svcType = 'full';
+function setSvc(type, btn) {
+  svcType = type;
+  document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateLaborFieldsForService(type);
+  updateLaborDisplay();
+}
+
+function updateLaborFieldsForService(type) {
+  const hoursLabel    = document.getElementById('hoursLabel');
+  const prepHoursRow  = document.getElementById('prepHoursRow');
+  const delivHoursRow = document.getElementById('delivHoursRow');
+  const serverRow     = document.getElementById('serverStaffRow');
+  const svcNote       = document.getElementById('svcLaborNote');
+
+  if(type === 'dropoff') {
+    // Drop off: cook time + delivery time. No servers needed on-site.
+    if(hoursLabel)    hoursLabel.textContent    = 'Cook / Prep Time (hrs)';
+    if(prepHoursRow)  prepHoursRow.style.display  = '';
+    if(delivHoursRow) delivHoursRow.style.display = '';
+    if(serverRow)     serverRow.style.opacity    = '0.4';
+    if(svcNote) {
+      svcNote.style.display = 'block';
+      svcNote.innerHTML = '📦 <strong>Drop Off Mode:</strong> Labor = kitchen prep/cook time + delivery time. Servers are typically not needed — leave at 0 unless you have on-site setup staff.';
+    }
+  } else {
+    // Full service, buffet, cocktail: event duration for all staff
+    if(hoursLabel)    hoursLabel.textContent    = 'Event Duration (hrs)';
+    if(prepHoursRow)  prepHoursRow.style.display  = '';
+    if(delivHoursRow) delivHoursRow.style.display = 'none';
+    if(serverRow)     serverRow.style.opacity    = '1';
+    if(svcNote) {
+      svcNote.style.display = type === 'full' || type === 'buffet' || type === 'cocktail' ? 'none' : 'none';
+    }
+  }
+}
+
+function addIng() {
+  const r = document.createElement('div');
+  r.className = 'row-grid ing-grid';
+  r.innerHTML = `
+    <div class="field"><label>Ingredient</label><input type="text" placeholder="e.g. Chicken Breast" oninput="scheduleScaling()"></div>
+    <div class="field"><label>Portion / person</label><input type="number" placeholder="6" step="0.1" min="0" oninput="scheduleScaling()"></div>
+    <div class="field"><label>Unit</label><select onchange="scheduleScaling()"><option>oz</option><option>lbs</option><option>kg</option><option>cups</option><option>each</option><option>gallons</option><option>dozen</option><option>cases</option></select></div>
+    <div class="field"><label>&nbsp;</label><button class="icon-btn del-btn" onclick="this.closest('.row-grid').remove();scheduleScaling()">×</button></div>`;
+  document.getElementById('ingRows').appendChild(r);
+}
+
+// Debounce so we don't recompute on every keystroke
+let scaleTimer = null;
+function scheduleScaling() {
+  clearTimeout(scaleTimer);
+  scaleTimer = setTimeout(renderScaledIngredients, 400);
+}
+
+function renderScaledIngredients() {
+  const guests = parseInt(document.getElementById('evGuests').value) || 0;
+  const ings = getRawIngredients();
+  const tableEl = document.getElementById('scaledIngTable');
+  const sectionEl = document.getElementById('scaledIngSection');
+
+  if(!guests || !ings.length) { sectionEl.style.display='none'; return; }
+
+  sectionEl.style.display = 'block';
+  const lbl = document.getElementById('scaledGuestLabel');
+  if(lbl) lbl.textContent = guests + ' guests · +10% waste buffer included';
+
+  // Convert everything to a common "purchase unit"
+  const rows = ings.map(ing => {
+    const totalRaw = ing.qty * guests;
+    const buffer = totalRaw * 1.10; // 10% waste buffer
+    // Convert oz → lbs for display if >= 16oz
+    let displayQty = buffer, displayUnit = ing.unit;
+    if(ing.unit === 'oz' && buffer >= 16) {
+      displayQty = buffer / 16;
+      displayUnit = 'lbs';
+    }
+    // Get vendor prices for this ingredient from aiVendorPrices
+    const vendorPrices = getVendorPricesForIng(ing.name);
+    const costCells = buildCostCells(ing.name, displayQty, displayUnit, vendorPrices, guests);
+    return { ing, totalRaw, buffer, displayQty, displayUnit, vendorPrices, costCells };
+  });
+
+  // Build header
+  const vendors = getActiveVendors();
+  const headCols = vendors.length
+    ? vendors.map(v => `<th>${v} (unit $)</th><th>${v} total</th>`).join('') + '<th>Best Buy</th>'
+    : '<th>Est. Unit Cost</th><th>Est. Total</th>';
+
+  const tableHTML = `
+    <table class="vendor-table" style="width:100%">
+      <thead>
+        <tr>
+          <th>Ingredient</th>
+          <th>Per Person</th>
+          <th>Total Needed (+10%)</th>
+          ${headCols}
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr>
+            <td><strong>${r.ing.name}</strong></td>
+            <td style="font-family:'DM Mono',monospace">${r.ing.qty} ${r.ing.unit}</td>
+            <td style="font-family:'DM Mono',monospace;color:var(--gold)"><strong>${r.displayQty.toFixed(2)} ${r.displayUnit}</strong></td>
+            ${r.costCells}
+          </tr>
+        `).join('')}
+        ${rows.some(r=>r.costCells.includes('grand-total')) ? buildTotalRow(rows, vendors) : ''}
+      </tbody>
+    </table>`;
+
+  tableEl.innerHTML = tableHTML;
+
+  // Update grand total display
+  updateGrandFoodCost(rows, vendors);
+}
+
+function getRawIngredients() {
+  return [...document.querySelectorAll('#ingRows .row-grid')].map(r => {
+    const ins = r.querySelectorAll('input,select');
+    const name = ins[0]?.value?.trim();
+    const qty = parseFloat(ins[1]?.value) || 0;
+    const unit = ins[2]?.value || 'oz';
+    return name ? { name, qty, unit } : null;
+  }).filter(Boolean);
+}
+
+function getActiveVendors() {
+  return [
+    document.getElementById('ven1')?.value?.trim(),
+    document.getElementById('ven2')?.value?.trim(),
+    document.getElementById('ven3')?.value?.trim()
+  ].filter(Boolean);
+}
+
+function getVendorPricesForIng(ingName) {
+  if(!aiVendorPrices || !aiVendorPrices.prices) return {};
+  const needle = ingName.toLowerCase().trim();
+  // Try progressively looser matches
+  const key =
+    // 1. Exact case-insensitive
+    Object.keys(aiVendorPrices.prices).find(k => k.toLowerCase().trim() === needle) ||
+    // 2. AI key contains ingredient name
+    Object.keys(aiVendorPrices.prices).find(k => k.toLowerCase().includes(needle)) ||
+    // 3. Ingredient name contains AI key
+    Object.keys(aiVendorPrices.prices).find(k => needle.includes(k.toLowerCase().trim())) ||
+    // 4. First word match (e.g. "Chicken" matches "Chicken Breast")
+    Object.keys(aiVendorPrices.prices).find(k => {
+      const firstWord = needle.split(' ')[0];
+      return firstWord.length > 3 && k.toLowerCase().includes(firstWord);
+    });
+  return key ? aiVendorPrices.prices[key] : {};
+}
+
+function buildCostCells(ingName, totalQty, totalUnit, vendorPrices, guests) {
+  const vendors = getActiveVendors();
+  if(!vendors.length || !Object.keys(vendorPrices).length) {
+    // No vendor data — show estimate only
+    const estUnit = estimatePrice(ingName);
+    const estTotal = estUnit * totalQty;
+    return `<td style="color:var(--ink-dim);font-family:'DM Mono',monospace">~$${estUnit.toFixed(2)}/lb</td>
+            <td style="font-family:'DM Mono',monospace">~$${estTotal.toFixed(2)}</td>`;
+  }
+
+  let bestTotal = Infinity, bestVendor = '';
+  const cells = vendors.map(v => {
+    const info = vendorPrices[v];
+    if(!info) return '<td style="color:var(--ink-dim)">—</td><td style="color:var(--ink-dim)">—</td>';
+    // Normalize: if vendor unit is lb and we have lbs, direct multiply
+    // if vendor unit is lb and we have oz, convert
+    let purchaseQty = totalQty;
+    if(totalUnit === 'lbs' && info.unit === 'lb') purchaseQty = totalQty;
+    else if(totalUnit === 'oz' && info.unit === 'lb') purchaseQty = totalQty / 16;
+    else if(totalUnit === 'lbs' && info.unit === 'oz') purchaseQty = totalQty * 16;
+    const lineTotal = info.price * purchaseQty;
+    if(lineTotal < bestTotal) { bestTotal = lineTotal; bestVendor = v; }
+    return `<td style="font-family:'DM Mono',monospace">$${info.price.toFixed(2)}/${info.unit}</td>
+            <td style="font-family:'DM Mono',monospace">$${lineTotal.toFixed(2)}</td>`;
+  }).join('');
+
+  const bestCell = bestVendor
+    ? `<td class="price-best" style="font-family:'DM Mono',monospace;font-weight:600">★ ${bestVendor}<br>$${bestTotal.toFixed(2)}</td>`
+    : '<td>—</td>';
+
+  return cells + bestCell;
+}
+
+function buildTotalRow(rows, vendors) { return ''; } // totals in summary box
+
+function estimatePrice(ingName) {
+  // Rough fallback estimates per lb when no vendor data
+  const n = ingName.toLowerCase();
+  if(n.includes('beef')||n.includes('steak')||n.includes('brisket')) return 8.50;
+  if(n.includes('chicken')) return 3.20;
+  if(n.includes('salmon')||n.includes('fish')) return 9.00;
+  if(n.includes('shrimp')) return 10.00;
+  if(n.includes('pork')) return 4.50;
+  if(n.includes('lamb')) return 12.00;
+  if(n.includes('potato')) return 0.80;
+  if(n.includes('rice')||n.includes('pasta')) return 1.20;
+  if(n.includes('vegetable')||n.includes('veggie')||n.includes('asparagus')||n.includes('broccoli')) return 2.50;
+  if(n.includes('butter')) return 4.00;
+  if(n.includes('cheese')) return 6.00;
+  if(n.includes('cream')) return 3.50;
+  if(n.includes('bread')||n.includes('roll')) return 2.00;
+  return 3.00; // default
+}
+
+function updateGrandFoodCost(rows, vendors) {
+  // Calculate totals per vendor
+  const guests = parseInt(document.getElementById('evGuests').value) || 0;
+  if(!vendors.length || !aiVendorPrices?.prices) return;
+
+  const totals = {};
+  vendors.forEach(v => { totals[v] = 0; });
+
+  rows.forEach(r => {
+    vendors.forEach(v => {
+      const vp = r.vendorPrices[v];
+      if(!vp) return;
+      let qty = r.displayQty;
+      if(r.displayUnit === 'lbs' && vp.unit === 'lb') {}
+      else if(r.displayUnit === 'oz' && vp.unit === 'lb') qty = qty / 16;
+      totals[v] += vp.price * qty;
+    });
+  });
+
+  const validTotals = Object.entries(totals).filter(([,v]) => v > 0);
+  if(!validTotals.length) return;
+  validTotals.sort((a,b) => a[1]-b[1]);
+  const best = validTotals[0];
+  const worst = validTotals[validTotals.length-1];
+  const savings = worst[1] - best[1];
+
+  const summEl = document.getElementById('foodCostSummary');
+  if(summEl) {
+    summEl.style.display = 'block';
+    summEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:12px">
+        ${validTotals.map(([v,t]) => `
+          <div class="cost-tile ${v===best[0]?'gold':''}">
+            <span class="amt" style="${v===best[0]?'':'font-size:1.4rem'}">$${t.toFixed(2)}</span>
+            <div class="lbl">${v}${v===best[0]?' ★ BEST':''}</div>
+          </div>`).join('')}
+      </div>
+      <div style="background:var(--green-bg);border:1px solid rgba(39,115,90,0.2);border-radius:8px;padding:10px 14px;font-size:0.85rem">
+        <strong style="color:var(--green)">✓ Best deal: ${best[0]} at $${best[1].toFixed(2)} total food cost</strong>
+        ${savings > 0.5 ? `<span style="color:var(--ink-dim);margin-left:8px">· Saves $${savings.toFixed(2)} vs ${worst[0]}</span>` : ''}
+        <span style="color:var(--ink-dim);display:block;margin-top:3px;font-family:'DM Mono',monospace;font-size:0.75rem">$${(best[1]/guests).toFixed(2)} per person food cost</span>
+      </div>`;
+  }
+}
+
+// addVen replaced by AI vendor lookup
+let aiVendorPrices = []; // stores AI-returned vendor prices for use in analysis
+
+async function lookupVendorPrices() {
+  const v1 = document.getElementById('ven1').value.trim();
+  const v2 = document.getElementById('ven2').value.trim();
+  const v3 = document.getElementById('ven3').value.trim();
+  const vendors = [v1,v2,v3].filter(Boolean);
+  if(!vendors.length) { showToast('Enter at least one vendor name first.'); return; }
+
+  const ings = collectIng();
+  const recipe = document.getElementById('evRecipe').value.trim();
+  if(!ings.length && !recipe) { showToast('Add ingredients or a menu description first.'); return; }
+
+  const btn = document.getElementById('vendorLookupBtn');
+  const resultBox = document.getElementById('vendorPriceResults');
+  btn.disabled = true; btn.textContent = '⏳ Looking up prices...';
+
+  // Build clean ingredient name list
+  const ingNames = ings.length
+    ? ings.map(i => i.split(':')[0].trim())
+    : recipe.split(/[,\n]/).map(s=>s.trim()).filter(Boolean).slice(0,8);
+
+  const vendorList = vendors.join(', ');
+  const ingList = ingNames.join(', ');
+
+  // System prompt forces JSON-only output, user prompt is simple
+  const systemPrompt = `You are a US food wholesale pricing database. You ONLY output raw JSON with no explanation, no markdown, no code fences, no backticks. Output must be parseable by JSON.parse() immediately.`;
+
+  // Normalize vendor names so JSON keys are consistent with what user typed
+  const vendorMap = {}; // normalized → original
+  vendors.forEach(v => { vendorMap[v.toLowerCase().replace(/\s+/g,'')] = v; });
+
+  const userPrompt = `Return wholesale price estimates for these ingredients from these vendors.
+
+VENDORS: ${vendorList}
+INGREDIENTS: ${ingList}
+
+IMPORTANT: Use EXACTLY these vendor name strings as JSON keys (copy them exactly, including spaces): ${vendors.map(v=>'"'+v+'"').join(', ')}
+
+Output ONLY this JSON structure with realistic 2025 US wholesale prices. No explanation, no markdown:
+{"ingredients":["INGREDIENT_NAME"],"vendors":["VENDOR_NAME"],"prices":{"INGREDIENT_NAME":{"VENDOR_NAME":{"price":0.00,"unit":"lb"}}},"bestVendor":"VENDOR_NAME","bestVendorReason":"reason text","savingsNote":"savings text"}`;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => { controller.abort(); }, 28000);
+
+    let headers;
+    try { headers = apiHeaders(); } catch(keyErr) {
+      showVendorError('No API key found. Click "Update API Key" in the sidebar to add your Anthropic key (console.anthropic.com → API Keys).');
+      return;
+    }
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: headers,
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1500,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }]
+      })
+    });
+    clearTimeout(timeout);
+
+    const data = await res.json();
+
+    // Show API-level errors clearly
+    if(data.error) {
+      showVendorError('API error: ' + (data.error.message || JSON.stringify(data.error)));
+      return;
+    }
+
+    const raw = data.content?.map(i => i.text || '').join('') || '';
+
+    // Aggressive JSON extraction — find first { ... } block
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) {
+      showVendorError('AI returned unexpected format. Raw: ' + raw.slice(0,200));
+      return;
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch(parseErr) {
+      showVendorError('JSON parse failed. Response was: ' + raw.slice(0,300));
+      return;
+    }
+
+    // Validate structure
+    if(!parsed.ingredients || !parsed.prices) {
+      showVendorError('Incomplete data returned. Please try again.');
+      return;
+    }
+
+    // Normalize vendor keys: map any key variation back to user-typed names
+    // e.g. "restaurant depot" → "Restaurant Depot", "RestaurantDepot" → "Restaurant Depot"
+    const normalizedPrices = {};
+    Object.entries(parsed.prices).forEach(([ing, vendorData]) => {
+      normalizedPrices[ing] = {};
+      Object.entries(vendorData).forEach(([vendorKey, priceInfo]) => {
+        // Find matching user vendor by case-insensitive + space-stripped compare
+        const keyNorm = vendorKey.toLowerCase().replace(/\s+/g, '');
+        const matchedVendor = vendors.find(v => v.toLowerCase().replace(/\s+/g,'') === keyNorm) || vendorKey;
+        normalizedPrices[ing][matchedVendor] = priceInfo;
+      });
+    });
+    parsed.prices = normalizedPrices;
+
+    // Also normalize bestVendor
+    if(parsed.bestVendor) {
+      const bNorm = parsed.bestVendor.toLowerCase().replace(/\s+/g,'');
+      parsed.bestVendor = vendors.find(v => v.toLowerCase().replace(/\s+/g,'') === bNorm) || parsed.bestVendor;
+    }
+
+    aiVendorPrices = parsed;
+    renderVendorTable(parsed, vendors);
+    resultBox.style.display = 'block';
+    renderScaledIngredients();
+    showToast('✓ Vendor prices loaded — order sheet updated!');
+
+  } catch(e) {
+    if(e.name === 'AbortError') {
+      showVendorError('Request timed out after 28 seconds. Check your API key and try again.');
+    } else {
+      showVendorError('Connection error: ' + e.message);
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔍 AI Lookup Prices for My Ingredients';
+  }
+}
+
+function showVendorError(msg) {
+  const resultBox = document.getElementById('vendorPriceResults');
+  resultBox.style.display = 'block';
+  resultBox.innerHTML = `<div style="background:var(--red-bg);border:1px solid rgba(192,57,43,0.3);border-radius:8px;padding:14px;font-size:0.84rem;color:var(--red)">
+    <strong>⚠ Vendor Lookup Failed</strong><br><span style="color:var(--ink-mid);font-size:0.8rem">${msg}</span>
+    <br><br><button class="btn-outline btn-sm" onclick="document.getElementById('vendorPriceResults').style.display='none'">Dismiss</button>
+  </div>`;
+  console.error('Vendor lookup error:', msg);
+}
+
+function renderVendorTable(data, vendors) {
+  const headRow = document.getElementById('vendorCompareHead');
+  const body = document.getElementById('vendorCompareBody');
+  if(!headRow || !body) return;
+
+  // Build header
+  headRow.innerHTML = '<th>Ingredient</th>' + vendors.map(v=>`<th>${v}</th>`).join('') + '<th>Best Price</th>';
+
+  // Build rows
+  body.innerHTML = data.ingredients.map(ing => {
+    const prices = data.prices[ing] || {};
+    let bestPrice = Infinity, bestVendor = '';
+    vendors.forEach(v => { const p = prices[v]?.price; if(p && p < bestPrice){ bestPrice=p; bestVendor=v; } });
+    const cells = vendors.map(v => {
+      const info = prices[v];
+      if(!info) return '<td style="color:var(--ink-dim)">—</td>';
+      const isBest = v === bestVendor;
+      return `<td class="${isBest?'price-best':''}">$${info.price.toFixed(2)}/${info.unit}${isBest?' ★':''}</td>`;
+    }).join('');
+    return `<tr><td><strong>${ing}</strong></td>${cells}<td class="price-best">$${bestPrice.toFixed(2)} (${bestVendor})</td></tr>`;
+  }).join('');
+
+  // Best vendor summary
+  const pick = document.getElementById('vendorBestPick');
+  pick.innerHTML = `
+    <div style="background:var(--green-bg);border:1px solid rgba(39,115,90,0.2);border-radius:8px;padding:12px 16px;font-size:0.87rem">
+      <strong style="color:var(--green)">✓ Best Overall Vendor: ${data.bestVendor}</strong><br>
+      <span style="color:var(--ink-mid)">${data.bestVendorReason}</span><br>
+      <span style="color:var(--ink-dim);font-family:'DM Mono',monospace;font-size:0.78rem;margin-top:4px;display:block">${data.savingsNote || ''}</span>
+    </div>`;
+}
+
+function collectIng() {
+  // Also used by vendor lookup to know what ingredients to price
+  return getRawIngredients().map(i => `${i.name}: ${i.qty} ${i.unit} per person`);
+}
+
+function collectVen() {
+  // Now sourced from AI lookup — returns summary string array for legacy use
+  if(!aiVendorPrices || !aiVendorPrices.ingredients) return [];
+  return aiVendorPrices.ingredients.map(ing => {
+    const prices = aiVendorPrices.prices[ing] || {};
+    const best = Object.entries(prices).sort((a,b)=>a[1].price-b[1].price)[0];
+    return best ? `${best[0]} has best price for ${ing}: $${best[1].price}/${best[1].unit}` : null;
+  }).filter(Boolean);
+}
+
+function calcLabor() {
+  const staffChef   = +document.getElementById('sChef').value   || 0;
+  const staffCook   = +document.getElementById('sCook').value   || 0;
+  const staffServer = +document.getElementById('sServer').value || 0;
+  const rateChef    = +document.getElementById('rChef').value   || 0;
+  const rateCook    = +document.getElementById('rCook').value   || 0;
+  const rateServer  = +document.getElementById('rServer').value || 0;
+  const hours       = +document.getElementById('evHours').value || 0;
+
+  const isDropoff   = svcType === 'dropoff';
+  const delivHours  = isDropoff ? (+document.getElementById('delivHours')?.value || 0) : 0;
+  const staffDeliv  = isDropoff ? (+document.getElementById('sDeliv')?.value    || 0) : 0;
+  const rateDeliv   = isDropoff ? (+document.getElementById('rDeliv')?.value    || 0) : 0;
+
+  const chefTotal   = staffChef   * rateChef   * hours;
+  const cookTotal   = staffCook   * rateCook   * hours;
+  const serverTotal = isDropoff ? 0 : (staffServer * rateServer * hours);
+  const delivTotal  = isDropoff ? (staffDeliv * rateDeliv * delivHours) : 0;
+
+  return chefTotal + cookTotal + serverTotal + delivTotal;
+}
+
+function updateLaborDisplay() {
+  const staffChef   = +document.getElementById('sChef').value   || 0;
+  const staffCook   = +document.getElementById('sCook').value   || 0;
+  const staffServer = +document.getElementById('sServer').value || 0;
+  const rateChef    = +document.getElementById('rChef').value   || 0;
+  const rateCook    = +document.getElementById('rCook').value   || 0;
+  const rateServer  = +document.getElementById('rServer').value || 0;
+  const hours       = +document.getElementById('evHours').value || 0;
+  const overhead    = +document.getElementById('evOverhead').value || 0;
+
+  // Drop-off specific fields
+  const isDropoff   = svcType === 'dropoff';
+  const delivHours  = isDropoff ? (+document.getElementById('delivHours')?.value || 0) : 0;
+  const staffDeliv  = isDropoff ? (+document.getElementById('sDeliv')?.value    || 0) : 0;
+  const rateDeliv   = isDropoff ? (+document.getElementById('rDeliv')?.value    || 0) : 0;
+
+  // ── CALCULATIONS ──
+  // For drop-off: chefs & cooks work prep/cook hours. Servers = 0 (not on-site).
+  // Delivery staff work delivery hours.
+  const chefTotal   = staffChef   * rateChef   * hours;
+  const cookTotal   = staffCook   * rateCook   * hours;
+  const serverTotal = isDropoff ? 0 : (staffServer * rateServer * hours);
+  const delivTotal  = isDropoff ? (staffDeliv * rateDeliv * delivHours) : 0;
+  const laborTotal  = chefTotal + cookTotal + serverTotal + delivTotal;
+  const grandTotal  = laborTotal + overhead;
+
+  const hasData = staffChef || staffCook || rateChef || rateCook || hours;
+  const breakdownEl = document.getElementById('laborBreakdown');
+  if(!hasData) { breakdownEl.style.display = 'none'; return; }
+  breakdownEl.style.display = 'block';
+
+  const tdStyle    = 'padding:8px 10px;border-bottom:1px solid var(--border);';
+  const numStyle   = tdStyle + 'text-align:center;font-family:"DM Mono",monospace;';
+  const rightStyle = tdStyle + 'text-align:right;font-family:"DM Mono",monospace;';
+
+  // Build rows based on service type
+  let rows = [];
+  if(isDropoff) {
+    rows = [
+      { role: '👨‍🍳 Head Chef',        count: staffChef,   rate: rateChef,   hrs: hours,      subtotal: chefTotal,   hrsLabel: 'prep/cook' },
+      { role: '🍳 Line / Prep Cook',   count: staffCook,   rate: rateCook,   hrs: hours,      subtotal: cookTotal,   hrsLabel: 'prep/cook' },
+      { role: '🚗 Delivery / Driver',  count: staffDeliv,  rate: rateDeliv,  hrs: delivHours, subtotal: delivTotal,  hrsLabel: 'delivery'  },
+    ];
+  } else {
+    rows = [
+      { role: '👨‍🍳 Head Chef',        count: staffChef,   rate: rateChef,   hrs: hours, subtotal: chefTotal,   hrsLabel: 'event' },
+      { role: '🍳 Line / Prep Cook',   count: staffCook,   rate: rateCook,   hrs: hours, subtotal: cookTotal,   hrsLabel: 'event' },
+      { role: '🤵 Server / Staff',     count: staffServer, rate: rateServer, hrs: hours, subtotal: serverTotal, hrsLabel: 'event' },
+    ];
+  }
+
+  document.getElementById('laborRows').innerHTML = rows.map(r => `
+    <tr>
+      <td style="${tdStyle}">${r.role}</td>
+      <td style="${numStyle}">${r.count}</td>
+      <td style="${numStyle}">$${r.rate.toFixed(2)}/hr</td>
+      <td style="${numStyle}">${r.hrs} hrs<br><span style="font-size:0.68rem;color:var(--ink-dim)">(${r.hrsLabel})</span></td>
+      <td style="${rightStyle}${r.subtotal>0?';color:var(--ink);font-weight:600':';color:var(--ink-dim)'}">
+        ${r.subtotal > 0 ? '$'+r.subtotal.toFixed(2) : '—'}
+        ${r.count > 1 && r.subtotal > 0 ? '<span style="font-size:0.68rem;color:var(--ink-dim);display:block">('+r.count+' × $'+r.rate.toFixed(2)+' × '+r.hrs+'h)</span>' : ''}
+      </td>
+    </tr>`).join('');
+
+  const serviceLabel = isDropoff ? 'Drop-Off Labor Total' : 'Labor Subtotal';
+
+  document.getElementById('laborTotals').innerHTML = `
+    <tr style="background:var(--bg2)">
+      <td colspan="4" style="padding:9px 10px;font-weight:600;font-size:0.88rem">${serviceLabel}</td>
+      <td style="text-align:right;padding:9px 10px;font-family:'DM Mono',monospace;font-weight:700;color:var(--ink)">$${laborTotal.toFixed(2)}</td>
+    </tr>
+    <tr style="background:var(--bg2)">
+      <td colspan="4" style="padding:6px 10px;color:var(--ink-dim);font-size:0.85rem">Overhead / Misc</td>
+      <td style="text-align:right;padding:6px 10px;font-family:'DM Mono',monospace;color:var(--ink-mid)">$${overhead.toFixed(2)}</td>
+    </tr>
+    <tr style="background:var(--ink)">
+      <td colspan="4" style="padding:10px;color:white;font-weight:700;font-size:0.92rem">Total Labor + Overhead</td>
+      <td style="text-align:right;padding:10px;font-family:'DM Mono',monospace;font-weight:700;font-size:1rem;color:var(--gold-light)">$${grandTotal.toFixed(2)}</td>
+    </tr>`;
+}
+
+
+// ═══════════════════════════════════════════════
+// API KEY HELPER
+// ═══════════════════════════════════════════════
+function getApiKey() {
+  if(!currentUser || !currentUser.email) {
+    console.warn('ChefBid: No currentUser or email when fetching API key');
+    return null;
+  }
+  const key = DB.get('apikey_'+currentUser.email);
+  console.log('ChefBid: API key lookup for', currentUser.email, '→', key ? key.slice(0,12)+'...' : 'NOT FOUND');
+  return key;
+}
+
+function apiHeaders() {
+  const key = getApiKey();
+  if(!key) {
+    // Surface the issue immediately before the fetch even fires
+    throw new Error('NO_API_KEY');
+  }
+  return {
+    'Content-Type': 'application/json',
+    'x-api-key': key,
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+}
+// ═══════════════════════════════════════════════
+// AI ANALYSIS
+// ═══════════════════════════════════════════════
+let lastAnalysis = null;
+
+async function runAnalysis() {
+  const guests = document.getElementById('evGuests').value || '100';
+  const name = document.getElementById('evName').value || 'Catering Event';
+  const recipe = document.getElementById('evRecipe').value;
+  const budget = document.getElementById('evBudget').value;
+  const ings = collectIng();
+  const labor = calcLabor();
+  console.log('ChefBid labor:', labor, 'overhead:', +document.getElementById('evOverhead').value||0);
+  const overhead = +document.getElementById('evOverhead').value||0;
+  const targetMargin = +document.getElementById('evMargin').value||30;
+
+  // Pull vendor data from AI lookup if available
+  const vendorSummary = aiVendorPrices?.bestVendor
+    ? `Best vendor: ${aiVendorPrices.bestVendor}. ${aiVendorPrices.savingsNote||''}`
+    : 'No vendor data — recommend best sources.';
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+  document.getElementById('loadingBar').classList.add('show');
+
+  // Keep prompt tight and focused to avoid timeout
+  const prompt = `You are ChefBid AI. Catering analysis — be concise, use numbers, chef-to-chef tone.
+
+EVENT: ${name} | GUESTS: ${guests} | SERVICE: ${svcType}
+MENU: ${recipe || ings.join(', ') || 'Not specified'}
+LABOR: $${labor.toFixed(0)} | OVERHEAD: $${overhead} | MARGIN TARGET: ${targetMargin}%
+VENDOR INFO: ${vendorSummary}
+${budget ? 'CLIENT BUDGET: $'+budget : ''}
+
+Reply with exactly 4 short sections:
+### Scaled Ingredients
+List each ingredient with total quantity needed for ${guests} guests (+10% waste buffer).
+
+### Food Cost Estimate
+Total food cost range and recommended figure. State cost per person as "$XX per person".
+
+### Suggested Price
+Total event price and per-person price to hit ${targetMargin}% margin after $${labor.toFixed(0)} labor and $${overhead} overhead.
+
+### 3 Cost-Saving Tips
+Three specific tips for this menu/event. Keep each tip to 1-2 sentences.`;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    let headers;
+    try { headers = apiHeaders(); } catch(keyErr) {
+      document.getElementById('aiMainText').innerHTML = '<span style="color:var(--red)">⚠ No API key found. Click <strong>Update API Key</strong> in the left sidebar to enter your key from console.anthropic.com.</span>';
+      document.getElementById('aiResultSection').classList.add('show');
+      return;
+    }
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: headers,
+      signal: controller.signal,
+      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1500, messages: [{ role:"user", content:prompt }] })
+    });
+    clearTimeout(timeout);
+    const data = await res.json();
+    if(data.error) {
+      const errMsg = data.error.message || JSON.stringify(data.error);
+      document.getElementById('aiMainText').innerHTML = `<span style="color:var(--red)">⚠ API Error: ${errMsg}<br><br><span style="font-size:0.8rem;color:var(--ink-dim)">Check your API key in the sidebar. Make sure it starts with sk-ant- and has billing enabled at console.anthropic.com.</span></span>`;
+      document.getElementById('aiResultSection').classList.add('show');
+      return;
+    }
+    if(data.stop_reason === 'max_tokens') {
+      console.warn('ChefBid: Response was truncated — consider reducing prompt size');
+    }
+    const text = data.content?.map(i=>i.text||'').join('\n') || 'Unable to generate.';
+
+    document.getElementById('aiMainText').innerHTML = fmtAI(text);
+    document.getElementById('aiResultSection').classList.add('show');
+
+    // Extract per-person estimate
+    const ppMatch = text.match(/\$(\d+(?:\.\d+)?)\s*(?:per person|\/person|pp)/i);
+    const foodPerPerson = ppMatch ? parseFloat(ppMatch[1]) : 18;
+    const foodTotal = foodPerPerson * parseInt(guests);
+    const grandTotal = foodTotal + labor + overhead;
+    const suggestedPrice = grandTotal / (1 - targetMargin/100);
+
+    document.getElementById('costTiles').innerHTML = `
+      <div class="cost-tile"><span class="amt">$${foodTotal.toFixed(0)}</span><div class="lbl">Food Cost Est.</div></div>
+      <div class="cost-tile"><span class="amt">$${labor.toFixed(0)}</span><div class="lbl">Labor Cost</div></div>
+      <div class="cost-tile"><span class="amt">$${overhead.toFixed(0)}</span><div class="lbl">Overhead</div></div>
+      <div class="cost-tile"><span class="amt">$${grandTotal.toFixed(0)}</span><div class="lbl">Total Cost</div></div>
+      <div class="cost-tile gold"><span class="amt">$${suggestedPrice.toFixed(0)}</span><div class="lbl">Suggested Price (${targetMargin}% margin)</div></div>
+    `;
+    document.getElementById('costTileSection').style.display = 'block';
+
+    // Supply list
+    const supplies = getSupplies(svcType, parseInt(guests));
+    document.getElementById('supplyListEl').innerHTML = supplies.map(s=>`<li>${s}</li>`).join('');
+    document.getElementById('supplySection').style.display = 'block';
+
+    document.getElementById('followUpSection').style.display = 'block';
+    document.getElementById('saveEventSection').style.display = 'block';
+
+    // Store for saving
+    lastAnalysis = { name, guests: parseInt(guests), date: document.getElementById('evDate').value, svcType, recipe, ings, vendorSummary, labor, overhead, targetMargin, foodTotal, grandTotal, suggestedPrice, aiText: text, timestamp: new Date().toISOString() };
+
+    showToast('✦ Analysis complete!');
+    document.getElementById('aiResultSection').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  } catch(e) {
+    const errDetail = e.name === 'AbortError'
+      ? 'Request timed out (30s). Check your internet connection and try again.'
+      : (e.message === 'NO_API_KEY'
+        ? 'No API key set. Click Update API Key in the sidebar.'
+        : 'Connection error: ' + e.message);
+    document.getElementById('aiMainText').innerHTML = `<span style="color:var(--red)">⚠ ${errDetail}</span>`;
+    document.getElementById('aiResultSection').classList.add('show');
+  } finally {
+    document.getElementById('loadingBar').classList.remove('show');
+    btn.disabled = false; btn.textContent = '✦ Generate Full AI Analysis';
+  }
+}
+
+async function askFollowUp() {
+  const q = document.getElementById('fuInput').value.trim();
+  if(!q || !lastAnalysis) return;
+  const btn = document.querySelector('.ask-btn');
+  btn.disabled = true; btn.textContent = '...';
+  const ctx = `Event: ${lastAnalysis.name}, ${lastAnalysis.guests} guests, ${lastAnalysis.svcType} service. Menu: ${lastAnalysis.recipe}. Food cost: $${lastAnalysis.foodTotal?.toFixed(0)}, Labor: $${lastAnalysis.labor?.toFixed(0)}.`;
+  try {
+    let fuHeaders;
+    try { fuHeaders = apiHeaders(); } catch(e) { showToast('Add your API key first.'); btn.disabled=false; btn.textContent='Ask AI ›'; return; }
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:fuHeaders,
+      body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, messages:[{role:"user",content:`ChefBid AI. Context: ${ctx}\n\nChef asks: ${q}\n\nAnswer concisely, chef-to-chef, with specific numbers.`}] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(i=>i.text||'').join('\n')||'Unable to respond.';
+    document.getElementById('fuText').innerHTML = fmtAI(text);
+    document.getElementById('fuResponse').style.display = 'block';
+    document.getElementById('fuInput').value = '';
+  } catch(e) {} finally { btn.disabled=false; btn.textContent='Ask AI ›'; }
+}
+
+async function getPricingAdvice() {
+  const ctx = document.getElementById('pricingContext').value.trim();
+  const food = +document.getElementById('mpFood').value||0;
+  const labor = +document.getElementById('mpLabor').value||0;
+  const overhead = +document.getElementById('mpOverhead').value||0;
+  const guests = +document.getElementById('mpGuests').value||0;
+  const totalCost = food+labor+overhead;
+  const btn = event.target;
+  btn.disabled=true; btn.textContent='Thinking...';
+  const el = document.getElementById('pricingAdviceResult');
+  el.style.display='block'; el.classList.add('show');
+  el.innerHTML = '<div class="ai-badge"><div class="ai-dot"></div> AI PRICING STRATEGY</div><div class="ai-text">Analyzing...</div>';
+  try {
+    let fuHeaders;
+    try { fuHeaders = apiHeaders(); } catch(e) { showToast('Add your API key first.'); btn.disabled=false; btn.textContent='Ask AI ›'; return; }
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:fuHeaders,
+      body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, messages:[{role:"user",content:`You are ChefBid AI, a pricing strategist for catering businesses.\n\nEvent context: ${ctx||'Not provided'}\nTotal cost breakdown: Food $${food}, Labor $${labor}, Overhead $${overhead}, Total cost $${totalCost}, Guests: ${guests}\n\nProvide:\n1. Market rate range for this type of event in the US (per person and total)\n2. Three pricing tiers: Budget, Standard, Premium with rationale\n3. What margin percentage to target and why\n4. Any upsell opportunities (bar service, dessert station, etc.)\n5. One negotiation tip for dealing with budget-conscious clients\n\nBe specific with dollar amounts. Speak like a successful caterer coaching a peer.`}] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(i=>i.text||'').join('\n')||'Unable to respond.';
+    el.innerHTML = '<div class="ai-badge"><div class="ai-dot"></div> AI PRICING STRATEGY</div><div class="ai-text">'+fmtAI(text)+'</div>';
+  } catch(e) { el.innerHTML='<span style="color:var(--red)">Error. Try again.</span>'; }
+  finally { btn.disabled=false; btn.textContent='Get AI Pricing Strategy'; }
+}
+
+// ═══════════════════════════════════════════════
+// SAVE & EVENTS
+// ═══════════════════════════════════════════════
+function saveCurrentEvent() {
+  if(!lastAnalysis || !currentUser) return;
+  const events = DB.get('events_'+currentUser.email) || [];
+  events.unshift({ ...lastAnalysis, id: Date.now() });
+  DB.set('events_'+currentUser.email, events);
+  showToast('✓ Event saved to your account!');
+  document.getElementById('saveEventSection').style.display = 'none';
+}
+
+function refreshDashboard() {
+  if(!currentUser) return;
+  const events = DB.get('events_'+currentUser.email) || [];
+  const vendors = DB.get('vendors_'+currentUser.email) || [];
+  const totalGuests = events.reduce((a,e)=>a+(e.guests||0),0);
+  const totalRev = events.reduce((a,e)=>a+(e.suggestedPrice||0),0);
+  document.getElementById('statEvents').textContent = events.length;
+  document.getElementById('statGuests').textContent = totalGuests.toLocaleString();
+  document.getElementById('statVendors').textContent = [...new Set(vendors.map(v=>v.vendor))].length;
+  document.getElementById('statRevenue').textContent = '$'+totalRev.toFixed(0);
+  const recent = events.slice(0,5);
+  document.getElementById('dashRecentEvents').innerHTML = recent.length ? recent.map(evCard).join('') : '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No events yet. Create your first analysis.</p></div>';
+}
+
+function renderEvents() {
+  if(!currentUser) return;
+  const events = DB.get('events_'+currentUser.email) || [];
+  document.getElementById('eventsList').innerHTML = events.length ? events.map(evCard).join('') : '<div class="empty-state"><div class="empty-icon">📋</div><p>No saved events. Generate an analysis and save it.</p></div>';
+}
+
+function evCard(ev) {
+  const date = ev.date ? new Date(ev.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'No date';
+  return `<div class="event-card" onclick="showPage('events')">
+    <div class="event-info">
+      <div class="ev-name">${ev.name}</div>
+      <div class="ev-meta">${date} · ${ev.guests} guests · <span class="ev-badge ${ev.svcType}">${ev.svcType}</span></div>
+    </div>
+    <div class="event-cost">
+      <div class="ev-amt">$${(ev.suggestedPrice||0).toFixed(0)}</div>
+      <div class="ev-guests">suggested price</div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// VENDOR TRACKER
+// ═══════════════════════════════════════════════
+function logVendorPrice() {
+  if(!currentUser) return;
+  const vendor = document.getElementById('vlVendor').value.trim();
+  const ingredient = document.getElementById('vlIngredient').value.trim();
+  const price = parseFloat(document.getElementById('vlPrice').value);
+  const unit = document.getElementById('vlUnit').value;
+  if(!vendor||!ingredient||!price) { showToast('Fill all vendor fields first.'); return; }
+  const vendors = DB.get('vendors_'+currentUser.email) || [];
+  vendors.push({ vendor, ingredient, price, unit, date: new Date().toISOString().split('T')[0] });
+  DB.set('vendors_'+currentUser.email, vendors);
+  document.getElementById('vlVendor').value='';
+  document.getElementById('vlIngredient').value='';
+  document.getElementById('vlPrice').value='';
+  renderVendorTable();
+  showToast('✓ Price logged!');
+}
+
+function renderVendorTable() {
+  if(!currentUser) return;
+  const vendors = DB.get('vendors_'+currentUser.email) || [];
+  if(!vendors.length) { document.getElementById('vendorEmpty').style.display='block'; document.getElementById('vendorTable').style.display='none'; return; }
+  document.getElementById('vendorEmpty').style.display='none';
+  document.getElementById('vendorTable').style.display='table';
+
+  // Group by ingredient+vendor, compute averages
+  const grouped = {};
+  vendors.forEach(v => {
+    const key = v.ingredient+'|'+v.vendor;
+    if(!grouped[key]) grouped[key] = { ...v, prices: [] };
+    grouped[key].prices.push(v.price);
+    if(v.date > (grouped[key].lastDate||'')) { grouped[key].lastDate = v.date; grouped[key].price = v.price; }
+  });
+
+  // Find best price per ingredient
+  const byIngredient = {};
+  Object.values(grouped).forEach(g => {
+    if(!byIngredient[g.ingredient] || g.price < byIngredient[g.ingredient]) byIngredient[g.ingredient] = g.price;
+  });
+
+  document.getElementById('vendorTableBody').innerHTML = Object.values(grouped).map(g => {
+    const avg = (g.prices.reduce((a,b)=>a+b,0)/g.prices.length).toFixed(2);
+    const isBest = g.price === byIngredient[g.ingredient];
+    return `<tr>
+      <td>${g.ingredient}</td>
+      <td>${g.vendor}</td>
+      <td class="${isBest?'price-best':'price-high'}">$${g.price.toFixed(2)} ${isBest?'★':''}</td>
+      <td><span class="avg-badge">avg $${avg}</span></td>
+      <td>${g.unit}</td>
+      <td>${g.prices.length} entr${g.prices.length===1?'y':'ies'}</td>
+      <td>${g.lastDate||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// MARGIN CALCULATOR
+// ═══════════════════════════════════════════════
+function calcMargin() {
+  const food = +document.getElementById('mpFood').value||0;
+  const labor = +document.getElementById('mpLabor').value||0;
+  const overhead = +document.getElementById('mpOverhead').value||0;
+  const asking = +document.getElementById('mpAskPrice').value||0;
+  const guests = +document.getElementById('mpGuests').value||0;
+  const totalCost = food+labor+overhead;
+  if(!asking || !totalCost) { document.getElementById('marginPct').textContent='—'; document.getElementById('marginPct').className='margin-pct'; return; }
+  const profit = asking - totalCost;
+  const margin = (profit/asking)*100;
+  const pctEl = document.getElementById('marginPct');
+  pctEl.textContent = margin.toFixed(1)+'%';
+  pctEl.className = 'margin-pct '+(margin>=25?'good':margin>=15?'ok':'bad');
+
+  document.getElementById('marginBreakdown').innerHTML = `
+    <div class="mb-row"><span>Food Cost</span><span class="mb-val neg">−$${food.toFixed(0)}</span></div>
+    <div class="mb-row"><span>Labor Cost</span><span class="mb-val neg">−$${labor.toFixed(0)}</span></div>
+    <div class="mb-row"><span>Overhead</span><span class="mb-val neg">−$${overhead.toFixed(0)}</span></div>
+    <div class="mb-row"><span>Total Cost</span><span class="mb-val neg">−$${totalCost.toFixed(0)}</span></div>
+    <div class="mb-row"><span>Your Price</span><span class="mb-val">$${asking.toFixed(0)}</span></div>
+    <div class="mb-row"><span>Net Profit</span><span class="mb-val ${profit>=0?'pos':'neg'}">${profit>=0?'+':'-'}$${Math.abs(profit).toFixed(0)}</span></div>
+  `;
+
+  // Price targets
+  const targets = [20,25,30,35,40].map(m => {
+    const price = totalCost/(1-m/100);
+    return `<div class="mb-row"><span>${m}% margin</span><span class="mb-val">$${price.toFixed(0)} total · $${guests?(price/guests).toFixed(2):'-'}/person</span></div>`;
+  });
+  document.getElementById('priceTargets').innerHTML = targets.join('');
+
+  // Per person
+  if(guests) {
+    document.getElementById('perPersonBreakdown').innerHTML = `
+      <div class="mb-row"><span>Food / person</span><span class="mb-val neg">$${(food/guests).toFixed(2)}</span></div>
+      <div class="mb-row"><span>Labor / person</span><span class="mb-val neg">$${(labor/guests).toFixed(2)}</span></div>
+      <div class="mb-row"><span>Overhead / person</span><span class="mb-val neg">$${(overhead/guests).toFixed(2)}</span></div>
+      <div class="mb-row"><span>Cost / person</span><span class="mb-val neg">$${(totalCost/guests).toFixed(2)}</span></div>
+      <div class="mb-row"><span>Price / person</span><span class="mb-val">$${(asking/guests).toFixed(2)}</span></div>
+      <div class="mb-row"><span>Profit / person</span><span class="mb-val ${profit>=0?'pos':'neg'}">$${(profit/guests).toFixed(2)}</span></div>
+    `;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════════════
+function exportPDF() {
+  if(!lastAnalysis) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'letter' });
+  const W = doc.internal.pageSize.getWidth();
+  let y = 40;
+  const gold = [184,134,11];
+  const ink = [26,24,22];
+  const mid = [90,86,80];
+
+  // Header bar
+  doc.setFillColor(...gold);
+  doc.rect(0, 0, W, 70, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('times','bold');
+  doc.setFontSize(28);
+  doc.text('ChefBid PRO', 40, 38);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('AI CATERING INTELLIGENCE · CONFIDENTIAL EVENT REPORT', 40, 55);
+  doc.setTextColor(...ink);
+  doc.setFontSize(9);
+  doc.text(new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}), W-40, 55, {align:'right'});
+  y = 95;
+
+  // Event title
+  doc.setFont('times','bold');
+  doc.setFontSize(20);
+  doc.setTextColor(...ink);
+  doc.text(lastAnalysis.name, 40, y); y+=8;
+  doc.setDrawColor(...gold);
+  doc.setLineWidth(1.5);
+  doc.line(40, y, W-40, y); y+=18;
+
+  // Meta row
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...mid);
+  const metaItems = [`Guests: ${lastAnalysis.guests}`, `Service: ${lastAnalysis.svcType}`, `Date: ${lastAnalysis.date||'TBD'}`, `Generated: ${new Date(lastAnalysis.timestamp).toLocaleDateString()}`];
+  metaItems.forEach((m,i) => doc.text(m, 40 + i*130, y));
+  y += 24;
+
+  // Cost summary boxes
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...gold);
+  doc.text('COST SUMMARY', 40, y); y += 10;
+  const tiles = [
+    ['Food Cost', '$'+(lastAnalysis.foodTotal||0).toFixed(0)],
+    ['Labor', '$'+(lastAnalysis.labor||0).toFixed(0)],
+    ['Overhead', '$'+(lastAnalysis.overhead||0).toFixed(0)],
+    ['Total Cost', '$'+(lastAnalysis.grandTotal||0).toFixed(0)],
+    ['Suggested Price', '$'+(lastAnalysis.suggestedPrice||0).toFixed(0)],
+  ];
+  const tw = (W-80)/tiles.length;
+  tiles.forEach((t,i) => {
+    const x = 40 + i*tw;
+    if(i===4){doc.setFillColor(gold[0],gold[1],gold[2]);}else{doc.setFillColor(245,240,232);}
+    doc.roundedRect(x, y, tw-6, 48, 4, 4, 'F');
+    doc.setFontSize(i===4?16:14);
+    doc.setFont('times','bold');
+    if(i===4){doc.setTextColor(255,255,255);}else{doc.setTextColor(ink[0],ink[1],ink[2]);}
+    doc.text(t[1], x+tw/2-3, y+26, {align:'center'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    if(i===4){doc.setTextColor(220,200,100);}else{doc.setTextColor(mid[0],mid[1],mid[2]);}
+    doc.text(t[0].toUpperCase(), x+tw/2-3, y+40, {align:'center'});
+  });
+  y += 64;
+
+  // AI Report
+  doc.setDrawColor(...gold);
+  doc.setLineWidth(0.5);
+  doc.line(40, y, W-40, y); y+=14;
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...gold);
+  doc.text('AI ANALYSIS REPORT', 40, y); y+=14;
+
+  const cleanText = (lastAnalysis.aiText||'').replace(/\*\*(.*?)\*\*/g,'$1').replace(/#{1,3}\s*/g,'').split('\n');
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...mid);
+  cleanText.forEach(line => {
+    if(!line.trim()) { y+=6; return; }
+    if(line.startsWith('###')||line.match(/^[A-Z][A-Z\s]+$/)) {
+      y+=4;
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...gold);
+      doc.text(line.replace(/###\s*/,''), 40, y); y+=14;
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(...mid);
+      doc.setFontSize(9);
+    } else {
+      const wrapped = doc.splitTextToSize(line, W-90);
+      wrapped.forEach(wl => {
+        if(y > 700) { doc.addPage(); y=40; }
+        doc.text(wl, 40, y); y+=13;
+      });
+    }
+    if(y > 720) { doc.addPage(); y=50; }
+  });
+
+  // Footer
+  const pages = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++) {
+    doc.setPage(i);
+    doc.setFillColor(...gold);
+    doc.rect(0, doc.internal.pageSize.getHeight()-28, W, 28, 'F');
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(255,255,255);
+    doc.text('ChefBid PRO · AI Catering Intelligence · Confidential', 40, doc.internal.pageSize.getHeight()-10);
+    doc.text(`Page ${i} of ${pages}`, W-40, doc.internal.pageSize.getHeight()-10, {align:'right'});
+  }
+
+  doc.save(`ChefBid_${lastAnalysis.name.replace(/\s+/g,'_')}_Report.pdf`);
+  showToast('✓ PDF exported!');
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function fmtAI(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/###\s*(.+)/g,'<h3>$1</h3>')
+    .replace(/##\s*(.+)/g,'<h3>$1</h3>')
+    .replace(/\n/g,'<br>');
+}
+
+function getSupplies(type, guests) {
+  const base = [
+    `Serving utensils — ${Math.ceil(guests/20)} sets recommended`,
+    `Chafer / warming units — ${Math.ceil(guests/30)} units`,
+    `Food-safe gloves, wrap & storage bags`,
+    `Labeled transport containers & coolers`,
+    `Allergy labeling & menu cards`,
+    `Hand sanitizer stations`,
+  ];
+  if(type==='full') return [...base, `Plates, flatware, glassware — ${guests + Math.ceil(guests*0.1)} settings (+10% buffer)`, 'Table linens & covers', 'Bussing tubs & trash stations', 'Serving station setup & skirting'];
+  if(type==='dropoff') return [...base, 'Disposable containers with secure lids', 'Reheating instructions (printed)', 'Temperature-controlled delivery vehicle'];
+  if(type==='buffet') return [...base, `Chafing fuel — ${Math.ceil(guests/25)} cans`, 'Sneeze guards for each station', 'Tongs, ladles, portion spoons per dish', 'Buffet signage / menu display'];
+  return [...base, 'Cocktail napkins & picks', 'Small plate / bite service ware', 'Passed tray equipment'];
+}
+
+function clearForm() {
+  document.getElementById('evName').value='';
+  document.getElementById('evGuests').value='';
+  document.getElementById('evBudget').value='';
+  document.getElementById('evRecipe').value='';
+  document.getElementById('ven1').value='';
+  document.getElementById('ven2').value='';
+  document.getElementById('ven3').value='';
+  document.getElementById('ingRows').innerHTML='';
+  document.getElementById('vendorPriceResults').style.display='none';
+  aiVendorPrices = [];
+  addIng(); addIng(); addIng();
+  document.getElementById('aiResultSection').classList.remove('show');
+  document.getElementById('costTileSection').style.display='none';
+  document.getElementById('supplySection').style.display='none';
+  document.getElementById('followUpSection').style.display='none';
+  document.getElementById('saveEventSection').style.display='none';
+  lastAnalysis=null;
+}
+
+// ═══════════════════════════════════════════════
+// STRIPE INTEGRATION
+// ═══════════════════════════════════════════════
+const STRIPE_PK = 'pk_test_51S6zF2HpRjFN2n0meHmhKs5NeKyYdGn8b9HUew94nxPsSZBpf385xd4N3oYx2EwsXApPPJs6AIQIEIp8PcYQshRT00ITpSRMRv';
+const PLANS = {
+  basic: { priceId: 'price_1TLcNkHpRjFN2n0m2llx9Mi3', name: 'Basic', amount: '$19/mo' },
+  pro:   { priceId: 'price_1TORLzHpRjFN2n0mqlRKR0EB', name: 'PRO',   amount: '$29/mo' }
+};
+
+let stripeInstance = null;
+function getStripe() {
+  if (!stripeInstance) stripeInstance = Stripe(STRIPE_PK);
+  return stripeInstance;
+}
+
+// Selected plan during signup
+let selectedPlan = 'pro';
+function selectPlan(plan) {
+  selectedPlan = plan;
+  const basicCard = document.getElementById('planBasicCard');
+  const proCard = document.getElementById('planProCard');
+  if (!basicCard || !proCard) return;
+  if (plan === 'basic') {
+    basicCard.style.border = '1px solid rgba(255,255,255,0.5)';
+    basicCard.style.background = 'rgba(255,255,255,0.08)';
+    proCard.style.border = '1px solid rgba(255,255,255,0.15)';
+    proCard.style.background = 'rgba(255,255,255,0.03)';
+  } else {
+    proCard.style.border = '1px solid rgba(184,134,11,0.6)';
+    proCard.style.background = 'rgba(184,134,11,0.08)';
+    basicCard.style.border = '1px solid rgba(255,255,255,0.15)';
+    basicCard.style.background = 'rgba(255,255,255,0.03)';
+  }
+}
+
+// Start Stripe Checkout — redirects to Stripe hosted page
+async function startCheckout(plan) {
+  const planData = PLANS[plan];
+  if (!planData) return;
+
+  // Save pending plan so we can activate after return
+  if (currentUser) DB.set('pendingPlan_' + currentUser.email, plan);
+
+  try {
+    showToast('Redirecting to secure payment...');
+    const stripe = getStripe();
+    const result = await stripe.redirectToCheckout({
+      lineItems: [{ price: planData.priceId, quantity: 1 }],
+      mode: 'subscription',
+      successUrl: window.location.href + '?payment=success&plan=' + plan,
+      cancelUrl: window.location.href + '?payment=cancel',
+      customerEmail: currentUser ? currentUser.email : undefined,
+    });
+    if (result.error) {
+      showToast('Payment error: ' + result.error.message);
+      console.error('Stripe error:', result.error);
+    }
+  } catch (err) {
+    showToast('Could not start checkout. Please try again.');
+    console.error('Checkout error:', err);
+  }
+}
+
+// Handle return from Stripe checkout
+function handleStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const payment = params.get('payment');
+  const plan = params.get('plan');
+  if (!payment) return;
+
+  // Clean URL
+  window.history.replaceState({}, document.title, window.location.pathname);
+
+  if (payment === 'success' && plan && currentUser) {
+    activateUserPlan(currentUser.email, plan);
+    showToast('🎉 Payment successful! Welcome to ChefBid ' + (PLANS[plan]?.name || plan) + '!');
+  } else if (payment === 'cancel') {
+    showToast('Payment cancelled. Choose a plan to continue.');
+    showPricingScreen();
+  }
+}
+
+// Activate plan after successful payment
+function activateUserPlan(email, plan) {
+  const users = DB.get('users') || {};
+  if (users[email]) {
+    users[email].plan = plan;
+    users[email].planActivated = new Date().toISOString();
+    DB.set('users', users);
+  }
+  if (currentUser) {
+    currentUser.plan = plan;
+    DB.set('currentUser', currentUser);
+  }
+  DB.del('pendingPlan_' + email);
+  updatePlanUI(plan);
+}
+
+// Get current user plan
+function getUserPlan() {
+  if (!currentUser) return null;
+  const users = DB.get('users') || {};
+  return (users[currentUser.email] && users[currentUser.email].plan) || null;
+}
+
+// Update UI based on plan
+function updatePlanUI(plan) {
+  const planDisplay = document.getElementById('userPlanDisplay');
+  const planBadge = document.getElementById('authPlanBadge');
+  if (planDisplay) planDisplay.textContent = plan === 'pro' ? '✦ PRO PLAN' : 'BASIC PLAN';
+  if (planBadge) planBadge.textContent = plan === 'pro' ? '✦ PRO PLAN · All Features Unlocked' : 'BASIC PLAN · Upgrade for AI & Payments';
+
+  // Show/hide client payment nav item
+  const cpNav = document.getElementById('nav-clientpay');
+  if (cpNav) cpNav.style.display = 'flex';
+
+  // Show/hide PRO gate on client payments page
+  const gate = document.getElementById('clientPayGate');
+  const content = document.getElementById('clientPayContent');
+  if (gate && content) {
+    if (plan === 'pro') {
+      gate.style.display = 'none';
+      content.style.display = 'block';
+    } else {
+      gate.style.display = 'block';
+      content.style.display = 'none';
+    }
+  }
+}
+
+// Show pricing screen
+function showPricingScreen() {
+  document.getElementById('appShell').style.display = 'none';
+  const ps = document.getElementById('pricingScreen');
+  ps.style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════
+// CLIENT PAYMENT LINKS
+// ═══════════════════════════════════════════════
+let currentPaymentLink = '';
+let currentPaymentMeta = {};
+
+async function createPaymentLink() {
+  const plan = getUserPlan();
+  if (plan !== 'pro') {
+    showToast('Upgrade to PRO to create client payment links');
+    return;
+  }
+
+  const clientName = document.getElementById('cpClientName').value.trim();
+  const desc = document.getElementById('cpDesc').value.trim();
+  const amount = parseFloat(document.getElementById('cpAmount').value);
+  const email = document.getElementById('cpEmail').value.trim();
+
+  if (!clientName) { showToast('Please enter a client name'); return; }
+  if (!desc) { showToast('Please enter an event description'); return; }
+  if (!amount || amount < 1) { showToast('Please enter a valid amount'); return; }
+
+  showToast('Creating payment link...');
+
+  // Use Stripe Payment Links via API
+  // NOTE: In production this call should go through your Railway backend
+  // For now we create a Stripe Checkout link client-side
+  try {
+    const stripe = getStripe();
+    // We create a checkout session via redirectToCheckout with custom amount
+    // For real payment links you need a backend — this creates a hosted checkout
+    const amountInCents = Math.round(amount * 100);
+
+    // Build a Stripe Payment Link URL using the Stripe dashboard format
+    // Since client-side can't create Payment Links directly, we use Checkout
+    const checkoutParams = {
+      mode: 'payment',
+      successUrl: window.location.href + '?clientpay=success&client=' + encodeURIComponent(clientName),
+      cancelUrl: window.location.href + '?clientpay=cancel',
+      lineItems: [{
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: desc,
+            description: 'Catering services for ' + clientName
+          },
+          unit_amount: amountInCents
+        },
+        quantity: 1
+      }]
+    };
+
+    if (email) checkoutParams.customerEmail = email;
+
+    // Since we can't create a shareable link client-side without a backend,
+    // we'll generate a pre-filled Stripe checkout that the chef can share
+    // by saving the parameters and opening a hosted checkout
+    const linkData = {
+      client: clientName,
+      desc,
+      amount,
+      email,
+      created: new Date().toLocaleDateString(),
+      id: 'CP-' + Date.now()
+    };
+
+    // Save to payment history
+    const history = DB.get('paymentLinks_' + currentUser.email) || [];
+    history.unshift(linkData);
+    DB.set('paymentLinks_' + currentUser.email, history);
+
+    currentPaymentMeta = linkData;
+
+    // Display the result card with instructions
+    const resultCard = document.getElementById('cpResultCard');
+    const linkDisplay = document.getElementById('cpLinkDisplay');
+    const linkMeta = document.getElementById('cpLinkMeta');
+
+    // Create a checkout URL the chef sends directly to client
+    // This opens Stripe checkout pre-filled for the client
+    const baseUrl = window.location.href.split('?')[0];
+    const payUrl = `${baseUrl}?pay=1&client=${encodeURIComponent(clientName)}&desc=${encodeURIComponent(desc)}&amt=${amountInCents}`;
+
+    currentPaymentLink = payUrl;
+    linkDisplay.textContent = payUrl;
+    linkMeta.innerHTML = `
+      <strong>${clientName}</strong> · ${desc}<br>
+      Amount: <strong>$${amount.toFixed(2)}</strong>${email ? ' · ' + email : ''}<br>
+      Created: ${linkData.created} · ID: ${linkData.id}
+    `;
+    resultCard.style.display = 'block';
+    showToast('✓ Payment link created!');
+
+  } catch(err) {
+    console.error('Payment link error:', err);
+    showToast('Error creating link. Check console for details.');
+  }
+}
+
+function copyPaymentLink() {
+  if (!currentPaymentLink) return;
+  navigator.clipboard.writeText(currentPaymentLink).then(() => {
+    showToast('✓ Payment link copied to clipboard!');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = currentPaymentLink;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✓ Copied!');
+  });
+}
+
+function emailPaymentLink() {
+  if (!currentPaymentLink || !currentPaymentMeta.client) return;
+  const subject = encodeURIComponent('Payment Request — ' + currentPaymentMeta.desc);
+  const body = encodeURIComponent(
+    'Hi ' + currentPaymentMeta.client + ',\n\n' +
+    'Thank you for choosing our catering services! Your balance of $' + (currentPaymentMeta.amount||0).toFixed(2) + ' is now due for:\n\n' +
+    currentPaymentMeta.desc + '\n\n' +
+    'Click the secure payment link below to pay by card:\n\n' +
+    currentPaymentLink + '\n\n' +
+    'Questions? Reply to this email.\n\n' +
+    'Thank you,\n' + (currentUser ? currentUser.name : 'Your Chef')
+  );
+  const emailTo = currentPaymentMeta.email || '';
+  window.open('mailto:' + emailTo + '?subject=' + subject + '&body=' + body);
+}
+
+// Handle client-side payment (when a client opens a pay link)
+function handleClientPayLink() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('pay') !== '1') return;
+
+  const client = params.get('client');
+  const desc = params.get('desc');
+  const amt = parseInt(params.get('amt'));
+
+  if (!client || !desc || !amt) return;
+
+  // Show a payment screen for the client
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('pricingScreen').style.display = 'none';
+
+  const payDiv = document.createElement('div');
+  payDiv.innerHTML = `
+    <div style="min-height:100vh;background:#1a1816;display:flex;align-items:center;justify-content:center;padding:20px">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:40px;max-width:420px;width:100%;text-align:center">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#d4a020;margin-bottom:4px">ChefBid PRO</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px">Secure Payment</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-bottom:6px">${decodeURIComponent(desc)}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-bottom:24px">for ${decodeURIComponent(client)}</div>
+        <div style="font-size:3rem;font-weight:700;color:#fff;font-family:'Cormorant Garamond',serif;margin-bottom:32px">$${(amt/100).toFixed(2)}</div>
+        <button onclick="processClientPayment('${client}','${desc}',${amt})" style="width:100%;padding:16px;background:#d4a020;color:#1a1816;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:12px">
+          Pay Securely with Card →
+        </button>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.2);font-family:'DM Mono',monospace">🔒 Secured by Stripe</div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(payDiv);
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+async function processClientPayment(client, desc, amtCents) {
+  try {
+    const stripe = getStripe();
+    await stripe.redirectToCheckout({
+      mode: 'payment',
+      successUrl: window.location.href + '?clientpay=success&client=' + client,
+      cancelUrl: window.location.href + '?clientpay=cancel',
+      lineItems: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: decodeURIComponent(desc), description: 'Catering for ' + decodeURIComponent(client) },
+          unit_amount: parseInt(amtCents)
+        },
+        quantity: 1
+      }]
+    });
+  } catch(err) {
+    alert('Payment error: ' + err.message);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
