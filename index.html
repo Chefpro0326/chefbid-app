@@ -1146,7 +1146,7 @@ function doSignup() {
   const apiKey = document.getElementById('signupApiKey').value.trim();
   if(!name||!email||!pw) { setAuthError('Please fill all fields.'); return; }
   if(pw.length < 6) { setAuthError('Password must be at least 6 characters.'); return; }
-  if(!apiKey||!apiKey.startsWith('sk-')) { setAuthError('Please enter a valid Anthropic API key (starts with sk-).'); return; }
+ 
   const users = DB.get('users') || {};
   if(users[email]) { setAuthError('Account already exists. Sign in instead.'); return; }
   // Save with pending plan — activated after Stripe payment
@@ -1172,7 +1172,7 @@ function doLogin() {
   if(apiKeyInput && apiKeyInput.startsWith('sk-')) {
     DB.set('apikey_'+email, apiKeyInput);
   }
-  if(!DB.get('apikey_'+email)) { setAuthError('Please enter your Anthropic API key on first login.'); return; }
+  
   loginUser(users[email]);
 }
 
@@ -1192,19 +1192,16 @@ function loginUser(user) {
     handleStripeReturn();
     return;
   }
-
   // Check plan status
   const users = DB.get('users') || {};
   const userRecord = users[user.email] || {};
   const plan = userRecord.plan;
-
   // If no active plan, show pricing screen
   if (!plan || plan === 'pending') {
     document.getElementById('authScreen').style.display = 'none';
     showPricingScreen();
     return;
   }
-
   // Plan is active — show the app
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('pricingScreen').style.display = 'none';
@@ -1220,12 +1217,10 @@ function loginUser(user) {
   // Handle any Stripe returns
   handleStripeReturn();
 }
-
 function updateApiKey() {
   const current = currentUser ? DB.get('apikey_'+currentUser.email) : null;
   const hint = current ? 'Current key: ' + current.slice(0,14) + '...' : 'No key saved yet';
-  const key = prompt('Enter your Anthropic API key\n' + hint + '\n\nGet it at: console.anthropic.com → API Keys');
-  if(!key) return;
+    if(!key) return;
   const cleaned = key.trim();
   if(cleaned.startsWith('sk-') && currentUser) {
     DB.set('apikey_'+currentUser.email, cleaned);
@@ -1235,7 +1230,6 @@ function updateApiKey() {
     showToast('Invalid key — must start with sk-');
   }
 }
-
 function updateApiKeyStatus() {
   if(!currentUser) return;
   const key = DB.get('apikey_'+currentUser.email);
