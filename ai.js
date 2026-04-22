@@ -1,33 +1,29 @@
-const path = require("path");
-
 const server = Bun.serve({
   port: process.env.PORT || 8080,
 
   async fetch(req) {
     const url = new URL(req.url);
 
-    // ─── CORS headers for all responses ───────────────────────────────────
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     };
 
-    // Handle preflight
     if (req.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    // ─── AI PROXY ENDPOINT ─────────────────────────────────────────────────
+    // AI PROXY
     if (url.pathname === "/api/ai" && req.method === "POST") {
       const apiKey = process.env.ANTHROPIC_API_KEY;
       if (!apiKey) {
+        console.error("ANTHROPIC_API_KEY not set!");
         return new Response(
-          JSON.stringify({ error: { message: "API key not configured on server." } }),
+          JSON.stringify({ error: { message: "Server config error — API key missing." } }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-
       try {
         const body = await req.json();
         const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -39,7 +35,6 @@ const server = Bun.serve({
           },
           body: JSON.stringify(body),
         });
-
         const data = await response.json();
         return new Response(JSON.stringify(data), {
           status: response.status,
@@ -53,22 +48,19 @@ const server = Bun.serve({
       }
     }
 
-    // ─── SERVE HTML ────────────────────────────────────────────────────────
+    // SERVE HTML
     try {
       const file = Bun.file("index.html");
       const exists = await file.exists();
       if (!exists) {
-        return new Response("App not found", { status: 404, headers: corsHeaders });
+        return new Response("index.html not found", { status: 404, headers: corsHeaders });
       }
       const text = await file.text();
       return new Response(text, {
         headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
       });
     } catch (err) {
-      return new Response("Server error: " + err.message, {
-        status: 500,
-        headers: corsHeaders,
-      });
+      return new Response("Server error: " + err.message, { status: 500, headers: corsHeaders });
     }
   },
 
@@ -78,3 +70,4 @@ const server = Bun.serve({
 });
 
 console.log("ChefBid PRO running on port " + server.port);
+console.log("API Key configured:", process.env.ANTHROPIC_API_KEY ? "YES" : "NO - CHECK RAILWAY VARIABLES");
