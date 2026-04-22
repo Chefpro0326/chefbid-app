@@ -1117,20 +1117,7 @@ body {
 <script>
 // ═══════════════════════════════════════════════
 // INIT — check for client pay link on page load
-// ═══════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', function() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('pay') === '1') {
-    handleClientPayLink();
-    return;
-  }
-  if (params.get('clientpay') === 'success') {
-    window.history.replaceState({}, document.title, window.location.pathname);
-    // Show success to client
-    document.body.innerHTML = '<div style="min-height:100vh;background:#1a1816;display:flex;align-items:center;justify-content:center"><div style="text-align:center;color:#fff"><div style="font-size:4rem;margin-bottom:16px">✅</div><div style="font-family:Cormorant Garamond,serif;font-size:2rem;color:#d4a020;margin-bottom:8px">Payment Successful!</div><div style="color:rgba(255,255,255,0.5);font-size:0.9rem">Thank you! Your payment has been received.</div></div></div>';
-    return;
-  }
-});
+
 
 // ═══════════════════════════════════════════════
 // DATA LAYER — localStorage persistence
@@ -1178,24 +1165,7 @@ function doSignup() {
   startCheckout(selectedPlan);
 }
 
-function doSignup() {
-  const name = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
-  const pw = document.getElementById('signupPw').value;
-  if(!name) { setAuthError('Please enter your name.'); return; }
-  if(!email) { setAuthError('Please enter your email.'); return; }
-  if(!pw || pw.length < 6) { setAuthError('Password must be at least 6 characters.'); return; }
-  const users = DB.get('users') || {};
-  if(users[email]) { setAuthError('Account already exists. Sign in instead.'); return; }
-  users[email] = { name, email, pw, created: new Date().toISOString(), plan: 'pending' };
-  DB.set('users', users);
-  DB.set('events_'+email, []);
-  DB.set('vendors_'+email, []);
-  DB.set('pendingPlan_'+email, selectedPlan);
-  currentUser = { name, email };
-  DB.set('currentUser', currentUser);
-  startCheckout(selectedPlan);
-}
+function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pw = document.getElementById('loginPw').value;
   if(!email||!pw) { setAuthError('Please enter email and password.'); return; }
@@ -2668,6 +2638,21 @@ async function processClientPayment(client, desc, amtCents) {
     alert('Payment error: ' + err.message);
   }
 }
+
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('pay') === '1') {
+    handleClientPayLink();
+    return;
+  }
+  if (params.get('clientpay') === 'success') {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    // Show success to client
+    document.body.innerHTML = '<div style="min-height:100vh;background:#1a1816;display:flex;align-items:center;justify-content:center"><div style="text-align:center;color:#fff"><div style="font-size:4rem;margin-bottom:16px">✅</div><div style="font-family:Cormorant Garamond,serif;font-size:2rem;color:#d4a020;margin-bottom:8px">Payment Successful!</div><div style="color:rgba(255,255,255,0.5);font-size:0.9rem">Thank you! Your payment has been received.</div></div></div>';
+    return;
+  }
+});
 
 function showToast(msg) {
   const t = document.getElementById('toast');
