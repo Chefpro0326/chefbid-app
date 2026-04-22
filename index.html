@@ -658,56 +658,12 @@ body {
       <div class="auth-field"><label>Your Name</label><input type="text" id="signupName" placeholder="Chef Marcus"></div>
       <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="chef@restaurant.com"></div>
       <div class="auth-field"><label>Password</label><input type="password" id="signupPw" placeholder="Min 6 characters"></div>
-      <!-- API key handled server-side — no key needed from chef -->
-
-      <!-- PLAN SELECTOR -->
-      <div style="margin-bottom:16px">
-        <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Choose Your Plan</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div id="planBasicCard" onclick="selectPlan('basic')" style="border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 10px;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.03)">
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Basic</div>
-            <div style="font-size:1.3rem;font-weight:700;color:rgba(255,255,255,0.85);font-family:'Cormorant Garamond',serif">$19<span style="font-size:0.7rem;font-weight:400;color:rgba(255,255,255,0.35)">/mo</span></div>
-            <div style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:6px;line-height:1.6">✓ 10 bids/month<br>✓ Cost calculator<br>✓ PDF export<br>✗ AI analysis<br>✗ Client payments</div>
-          </div>
-          <div id="planProCard" onclick="selectPlan('pro')" style="border:1px solid rgba(184,134,11,0.6);border-radius:10px;padding:12px 10px;cursor:pointer;transition:all 0.2s;background:rgba(184,134,11,0.08)">
-            <div style="font-size:0.65rem;color:var(--gold-light);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">✦ PRO</div>
-            <div style="font-size:1.3rem;font-weight:700;color:var(--gold-light);font-family:'Cormorant Garamond',serif">$29<span style="font-size:0.7rem;font-weight:400;color:rgba(255,255,255,0.35)">/mo</span></div>
-            <div style="font-size:0.62rem;color:rgba(255,255,255,0.5);margin-top:6px;line-height:1.6">✓ Unlimited bids<br>✓ AI analysis<br>✓ Vendor compare<br>✓ Labor costing<br>✓ Client payments</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="auth-btn" onclick="doSignup()" id="signupBtn">Continue to Payment →</button>
-      <div style="font-size:0.62rem;color:rgba(255,255,255,0.2);text-align:center;margin-top:8px;font-family:'DM Mono',monospace">🔒 Secured by Stripe · Cancel anytime</div>
+      <!-- API handled server-side -->
+      <button class="auth-btn" onclick="doSignup()" id="signupBtn">Create Account →</button>
     </div>
     <div id="loginApiWrap"></div><div class="auth-error" id="authError"></div>
-    <div class="auth-pro-badge" id="authPlanBadge">✦ PRO PLAN · All Features Unlocked</div>
+    <div class="auth-pro-badge">✦ PRO PLAN · All Features Unlocked</div>
   </div>
-</div>
-
-<!-- PRICING SCREEN -->
-<div id="pricingScreen" style="display:none;min-height:100vh;background:#1a1816;align-items:center;justify-content:center;flex-direction:column;padding:40px 20px">
-  <div style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:#d4a020;text-align:center;margin-bottom:6px">Choose Your Plan</div>
-  <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:36px">Cancel anytime · Secured by Stripe</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:560px;width:100%">
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px 22px">
-      <div style="font-size:0.65rem;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Basic</div>
-      <div style="font-size:2.4rem;font-weight:700;color:#fff;font-family:'Cormorant Garamond',serif;margin-bottom:4px">$19<span style="font-size:1rem;font-weight:400;color:rgba(255,255,255,0.3)">/month</span></div>
-      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:20px">For chefs getting started</div>
-      <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);line-height:2;margin-bottom:24px">✓ Up to 10 bids/month<br>✓ Ingredient scaling<br>✓ Cost calculator<br>✓ PDF export<br>✗ AI analysis<br>✗ Vendor comparison<br>✗ Client payment links</div>
-      <button onclick="startCheckout('basic')" style="width:100%;padding:13px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer">Get Basic</button>
-    </div>
-    <div style="background:rgba(184,134,11,0.1);border:1px solid rgba(184,134,11,0.5);border-radius:16px;padding:28px 22px;position:relative">
-      <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#d4a020;color:#1a1816;font-size:0.6rem;font-weight:700;padding:3px 12px;border-radius:99px;font-family:'DM Mono',monospace;letter-spacing:1px;white-space:nowrap">MOST POPULAR</div>
-      <div style="font-size:0.65rem;color:#d4a020;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">✦ PRO</div>
-      <div style="font-size:2.4rem;font-weight:700;color:#d4a020;font-family:'Cormorant Garamond',serif;margin-bottom:4px">$29<span style="font-size:1rem;font-weight:400;color:rgba(255,255,255,0.3)">/month</span></div>
-      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:20px">Full access · Built for pros</div>
-      <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:2;margin-bottom:24px">✓ Unlimited bids<br>✓ AI pricing analysis<br>✓ Vendor price compare<br>✓ Labor costing tools<br>✓ Profit margin tracking<br>✓ <strong style="color:#d4a020">Client payment links</strong><br>✓ Priority support</div>
-      <button onclick="startCheckout('pro')" style="width:100%;padding:13px;background:#d4a020;color:#1a1816;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer">Get PRO — $29/mo</button>
-    </div>
-  </div>
-  <div style="margin-top:20px;font-size:0.68rem;color:rgba(255,255,255,0.2);font-family:'DM Mono',monospace;text-align:center">🔒 Payments processed securely by Stripe</div>
-  <button onclick="doLogout()" style="margin-top:16px;background:none;border:none;color:rgba(255,255,255,0.2);font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif">← Sign out</button>
 </div>
 
 <!-- ══════════════════════════════════════════ -->
@@ -724,7 +680,7 @@ body {
       <div class="user-avatar" id="userAvatar">C</div>
       <div class="user-info">
         <div class="uname" id="userNameDisplay">Chef</div>
-        <div class="upro" id="userPlanDisplay">PRO PLAN</div>
+        <div class="upro">PRO PLAN</div>
       </div>
     </div>
     <div class="nav-section">Main</div>
@@ -734,9 +690,9 @@ body {
     <div class="nav-section">Finance</div>
     <button class="nav-item" onclick="showPage('vendors')" id="nav-vendors"><span class="nav-icon">🏪</span> Vendor Tracker</button>
     <button class="nav-item" onclick="showPage('margins')" id="nav-margins"><span class="nav-icon">📊</span> Profit & Margins</button>
-    <button class="nav-item" onclick="showPage('clientpay')" id="nav-clientpay"><span class="nav-icon">💳</span> Client Payments</button>
     <div class="sidebar-footer">
-      <div style="font-size:0.68rem;color:rgba(255,255,255,0.2);padding:8px 4px;font-family:'DM Mono',monospace">✦ AI Powered by ChefBid</div>
+      <div id="apiKeyStatus" onclick="updateApiKey()" style="font-size:0.72rem;padding:8px 4px;margin-bottom:8px;cursor:pointer;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Checking key...</div>
+      <button class="logout-btn" onclick="updateApiKey()" style="margin-bottom:6px;color:rgba(255,255,255,0.3)">🔑 Update API Key</button>
       <button class="logout-btn" onclick="doLogout()">↩ Sign Out</button>
     </div>
   </div>
@@ -778,7 +734,7 @@ body {
         <div class="card-head">📋 Event Setup</div>
         <div class="grid3">
           <div class="field"><label>Event Name</label><input type="text" id="evName" placeholder="Johnson Wedding Reception"></div>
-          <div class="field"><label>Guest Count</label><input type="number" id="evGuests" oninput="updateParseBtn()" placeholder="150" min="1" oninput="scheduleScaling()"></div>
+          <div class="field"><label>Guest Count</label><input type="number" id="evGuests" placeholder="150" min="1" oninput="scheduleScaling()"></div>
           <div class="field"><label>Event Date</label><input type="date" id="evDate"></div>
         </div>
         <div style="margin-top:14px" class="field">
@@ -797,32 +753,15 @@ body {
       </div>
 
       <!-- Ingredients -->
-      <div class="mono-label">MENU & INGREDIENTS</div>
+      <div class="mono-label">INGREDIENTS & MENU</div>
       <div class="card">
-        <div class="card-head">🍽️ Describe Your Menu <span style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--gold);font-weight:400;margin-left:8px">AI auto-generates all ingredients + quantities</span></div>
-
-        <!-- PRIMARY: AI Menu Parser -->
-        <div class="field">
-          <label>Describe your menu or paste a recipe</label>
-          <textarea id="evRecipe" rows="4" placeholder="e.g. 3-course plated dinner: Caesar salad, pan-seared salmon with roasted asparagus and garlic mashed potatoes, chocolate lava cake for dessert. Full service." style="min-height:90px"></textarea>
-        </div>
-        <button class="btn-gold btn-sm" onclick="aiParseMenu()" id="parseMenuBtn" style="margin-bottom:16px;width:100%">
-          ✦ AI — Generate Ingredients &amp; Portions for <span id="parseGuestCount">0</span> Guests
-        </button>
-        <div id="parseMenuStatus" style="display:none;font-size:0.8rem;color:var(--gold);font-family:'DM Mono',monospace;margin-bottom:12px;text-align:center">
-          <span class="ai-dot" style="display:inline-block;margin-right:6px"></span> AI is calculating portions...
-        </div>
-
-        <!-- Divider -->
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <div style="flex:1;height:1px;background:var(--border)"></div>
-          <div style="font-size:0.65rem;color:var(--ink-dim);font-family:'DM Mono',monospace;letter-spacing:1px">OR ADD MANUALLY</div>
-          <div style="flex:1;height:1px;background:var(--border)"></div>
-        </div>
-
-        <!-- MANUAL: ingredient rows -->
+        <div class="card-head">🥩 Ingredients <span style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--ink-dim);font-weight:400;margin-left:8px">Enter portion per person — totals auto-calculate</span></div>
         <div id="ingRows"></div>
-        <button class="add-row-btn" onclick="addIng()">+ Add Ingredient Manually</button>
+        <button class="add-row-btn" onclick="addIng()">+ Add Ingredient</button>
+        <div style="margin-top:16px" class="field">
+          <label>Or describe the menu / paste a recipe</label>
+          <textarea id="evRecipe" placeholder="e.g. Pan-seared salmon with roasted asparagus, garlic mashed potatoes, and dinner rolls. Classic plated service."></textarea>
+        </div>
       </div>
 
       <!-- Scaled Totals Output -->
@@ -1051,74 +990,10 @@ body {
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  CLIENT PAYMENTS PAGE                     -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="page" id="page-clientpay">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Client Payment Links</div>
-          <div class="page-sub">SEND INVOICES · COLLECT PAYMENTS</div>
-        </div>
-      </div>
-
-      <!-- PRO GATE: show only if pro plan -->
-      <div id="clientPayGate" style="display:none;text-align:center;padding:60px 20px">
-        <div style="font-size:3rem;margin-bottom:16px">💳</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ink);margin-bottom:8px">PRO Feature</div>
-        <div style="font-size:0.88rem;color:var(--ink-dim);margin-bottom:24px;max-width:320px;margin-left:auto;margin-right:auto">Client payment links are available on the PRO plan. Upgrade to send invoices your clients can pay online.</div>
-        <button onclick="startCheckout('pro')" style="background:var(--gold);color:#fff;border:none;border-radius:10px;padding:14px 28px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer">Upgrade to PRO — $29/mo</button>
-      </div>
-
-      <!-- PAYMENT LINK CREATOR (PRO only) -->
-      <div id="clientPayContent">
-        <div class="grid2">
-          <div>
-            <div class="card">
-              <div class="card-head">💳 Create Payment Link</div>
-              <div class="field"><label>Client Name</label><input type="text" id="cpClientName" placeholder="John & Sarah Smith"></div>
-              <div class="field" style="margin-top:12px"><label>Event Description</label><input type="text" id="cpDesc" placeholder="Wedding Reception — June 14th"></div>
-              <div class="field" style="margin-top:12px"><label>Amount to Charge ($)</label><input type="number" id="cpAmount" placeholder="4500" min="1" step="0.01"></div>
-              <div class="field" style="margin-top:12px"><label>Client Email (optional)</label><input type="email" id="cpEmail" placeholder="client@email.com"></div>
-              <button class="btn-primary" style="margin-top:16px;width:100%" onclick="createPaymentLink()">
-                Generate Payment Link →
-              </button>
-            </div>
-          </div>
-          <div>
-            <div class="card" id="cpResultCard" style="display:none">
-              <div class="card-head">✅ Payment Link Ready</div>
-              <div style="font-size:0.82rem;color:var(--ink-dim);margin-bottom:12px">Share this link with your client. They'll be able to pay securely via Stripe.</div>
-              <div id="cpLinkDisplay" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink);word-break:break-all;margin-bottom:12px;line-height:1.6"></div>
-              <div style="display:flex;gap:8px">
-                <button onclick="copyPaymentLink()" style="flex:1;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.82rem;cursor:pointer">📋 Copy Link</button>
-                <button onclick="emailPaymentLink()" style="flex:1;padding:10px;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.82rem;cursor:pointer">✉️ Open Email</button>
-              </div>
-              <div id="cpLinkMeta" style="font-size:0.72rem;color:var(--ink-dim);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"></div>
-            </div>
-            <div class="card">
-              <div class="card-head">📋 How It Works</div>
-              <div style="font-size:0.82rem;color:var(--ink-dim);line-height:1.9">
-                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">1.</span> Fill in client details and the amount owed</div>
-                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">2.</span> Click Generate — a secure Stripe payment page is created instantly</div>
-                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">3.</span> Copy and text or email the link to your client</div>
-                <div style="display:flex;gap:10px;margin-bottom:8px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">4.</span> Client clicks the link and pays by card — no account needed</div>
-                <div style="display:flex;gap:10px"><span style="color:var(--gold);font-weight:700;flex-shrink:0">5.</span> Funds deposit to your Stripe account within 2 business days</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div><!-- /main-content -->
 </div><!-- /appShell -->
 
 <script>
-// ═══════════════════════════════════════════════
-// INIT — check for client pay link on page load
-
-
 // ═══════════════════════════════════════════════
 // DATA LAYER — localStorage persistence
 // ═══════════════════════════════════════════════
@@ -1146,23 +1021,15 @@ function doSignup() {
   const name = document.getElementById('signupName').value.trim();
   const email = document.getElementById('signupEmail').value.trim();
   const pw = document.getElementById('signupPw').value;
-  // API key not needed from user
   if(!name||!email||!pw) { setAuthError('Please fill all fields.'); return; }
   if(pw.length < 6) { setAuthError('Password must be at least 6 characters.'); return; }
-  // API key handled server-side
   const users = DB.get('users') || {};
   if(users[email]) { setAuthError('Account already exists. Sign in instead.'); return; }
-  // Save with pending plan — activated after Stripe payment
-  users[email] = { name, email, pw, created: new Date().toISOString(), plan: 'pending' };
+  users[email] = { name, email, pw, created: new Date().toISOString(), plan: 'pro' };
   DB.set('users', users);
   DB.set('events_'+email, []);
   DB.set('vendors_'+email, []);
-  // No API key to store
-  DB.set('pendingPlan_'+email, selectedPlan);
-  // Log in then redirect to Stripe
-  currentUser = { name, email };
-  DB.set('currentUser', currentUser);
-  startCheckout(selectedPlan);
+  loginUser({ name, email });
 }
 
 function doLogin() {
@@ -1171,8 +1038,7 @@ function doLogin() {
   if(!email||!pw) { setAuthError('Please enter email and password.'); return; }
   const users = DB.get('users') || {};
   if(!users[email] || users[email].pw !== pw) { setAuthError('Invalid email or password.'); return; }
-  // API key handled server-side
-  // API key handled server-side — no check needed
+  // API handled server-side
   loginUser(users[email]);
 }
 
@@ -1180,49 +1046,47 @@ function loginUser(user) {
   // Always ensure email is on the object
   currentUser = { name: user.name, email: user.email };
   DB.set('currentUser', currentUser);
-
-  // Check for Stripe return FIRST
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('payment') === 'success') {
-    handleStripeReturn();
-  } else if (params.get('pay') === '1') {
-    handleClientPayLink();
-    return;
-  } else if (params.get('payment') === 'cancel') {
-    handleStripeReturn();
-    return;
-  }
-
-  // Check plan status
-  const users = DB.get('users') || {};
-  const userRecord = users[user.email] || {};
-  const plan = userRecord.plan;
-
-  // If no active plan, show pricing screen
-  if (!plan || plan === 'pending') {
-    document.getElementById('authScreen').style.display = 'none';
-    showPricingScreen();
-    return;
-  }
-
-  // Plan is active — show the app
   document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('pricingScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
   document.getElementById('userAvatar').textContent = (user.name||'C')[0].toUpperCase();
   document.getElementById('userNameDisplay').textContent = user.name || 'Chef';
   const hr = new Date().getHours();
   document.getElementById('dashGreeting').textContent = `${hr<12?'Good morning':hr<17?'Good afternoon':'Good evening'}, ${(user.name||'Chef').split(' ')[0]}`;
-  updatePlanUI(plan);
+  // Show API key status in sidebar
+  updateApiKeyStatus();
   refreshDashboard();
   renderVendorTable();
-  // Handle any Stripe returns
-  handleStripeReturn();
 }
 
-function updateApiKey() { /* API key managed server-side */ }
+function updateApiKey() {
+  const current = currentUser ? DB.get('apikey_'+currentUser.email) : null;
+  const hint = current ? 'Current key: ' + current.slice(0,14) + '...' : 'No key saved yet';
+  const key = prompt('Enter your Anthropic API key\n' + hint + '\n\nGet it at: console.anthropic.com → API Keys');
+  if(!key) return;
+  const cleaned = key.trim();
+  if(cleaned.startsWith('sk-') && currentUser) {
+    DB.set('apikey_'+currentUser.email, cleaned);
+    updateApiKeyStatus();
+    showToast('✓ API key saved!');
+  } else {
+    showToast('Invalid key — must start with sk-');
+  }
+}
 
-
+function updateApiKeyStatus() {
+  if(!currentUser) return;
+  const key = DB.get('apikey_'+currentUser.email);
+  const el = document.getElementById('apiKeyStatus');
+  if(!el) return;
+  if(key) {
+    el.innerHTML = '<span style="color:var(--green-bg);filter:brightness(3)">●</span> API Key: <span style="font-family:DM Mono,monospace;font-size:0.7rem">' + key.slice(0,14) + '...</span>';
+    el.style.color = 'rgba(255,255,255,0.35)';
+  } else {
+    el.innerHTML = '<span style="color:#e74c3c">●</span> <span style="color:#e74c3c">No API Key — Click to Add</span>';
+    el.onclick = updateApiKey;
+    el.style.cursor = 'pointer';
+  }
+}
 
 function doLogout() {
   currentUser = null;
@@ -1250,16 +1114,6 @@ window.addEventListener('load', () => {
 // NAVIGATION
 // ═══════════════════════════════════════════════
 function showPage(name) {
-  // PRO gate for client payments page
-  if (name === 'clientpay') {
-    const plan = getUserPlan();
-    const gate = document.getElementById('clientPayGate');
-    const cont = document.getElementById('clientPayContent');
-    if (gate && cont) {
-      if (plan === 'pro') { gate.style.display='none'; cont.style.display='block'; }
-      else { gate.style.display='block'; cont.style.display='none'; }
-    }
-  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name)?.classList.add('active');
@@ -1576,7 +1430,7 @@ Output ONLY this JSON structure with realistic 2025 US wholesale prices. No expl
 
     let headers;
     try { headers = apiHeaders(); } catch(keyErr) {
-      showVendorError('AI service error. Please try again.');
+      showVendorError('No API key found. Click "Update API Key" in the sidebar to add your Anthropic key (console.anthropic.com → API Keys).');
       return;
     }
     const res = await fetch("/api/ai", {
@@ -1651,7 +1505,7 @@ Output ONLY this JSON structure with realistic 2025 US wholesale prices. No expl
 
   } catch(e) {
     if(e.name === 'AbortError') {
-      showVendorError('Request timed out after 28 seconds. Please try again.');
+      showVendorError('Request timed out after 28 seconds. Check your API key and try again.');
     } else {
       showVendorError('Connection error: ' + e.message);
     }
@@ -1822,12 +1676,9 @@ function updateLaborDisplay() {
 
 
 // ═══════════════════════════════════════════════
-// API PROXY HELPER — routes through our secure server
-function apiHeaders() { return { "Content-Type": "application/json" }; }
-
-function getApiEndpoint() {
-  // Use our server proxy endpoint
-  return "/api/ai";
+// API PROXY — key stored securely on server
+function apiHeaders() {
+  return { "Content-Type": "application/json" };
 }
 
 
@@ -1878,7 +1729,7 @@ Three specific tips for this menu/event. Keep each tip to 1-2 sentences.`;
     const timeout = setTimeout(() => controller.abort(), 30000);
     let headers;
     try { headers = apiHeaders(); } catch(keyErr) {
-      document.getElementById('aiMainText').innerHTML = '<span style="color:var(--red)">⚠ AI service unavailable. Please try again shortly.</span>';
+      document.getElementById('aiMainText').innerHTML = '<span style="color:var(--red)">⚠ No API key found. Click <strong>Update API Key</strong> in the left sidebar to enter your key from console.anthropic.com.</span>';
       document.getElementById('aiResultSection').classList.add('show');
       return;
     }
@@ -1892,7 +1743,7 @@ Three specific tips for this menu/event. Keep each tip to 1-2 sentences.`;
     const data = await res.json();
     if(data.error) {
       const errMsg = data.error.message || JSON.stringify(data.error);
-      document.getElementById('aiMainText').innerHTML = `<span style="color:var(--red)">⚠ API Error: ${errMsg}<br><br><span style="font-size:0.8rem;color:var(--ink-dim)">Please try again. If the issue persists contact support.</span></span>`;
+      document.getElementById('aiMainText').innerHTML = `<span style="color:var(--red)">⚠ API Error: ${errMsg}<br><br><span style="font-size:0.8rem;color:var(--ink-dim)">Check your API key in the sidebar. Make sure it starts with sk-ant- and has billing enabled at console.anthropic.com.</span></span>`;
       document.getElementById('aiResultSection').classList.add('show');
       return;
     }
@@ -1938,7 +1789,7 @@ Three specific tips for this menu/event. Keep each tip to 1-2 sentences.`;
     const errDetail = e.name === 'AbortError'
       ? 'Request timed out (30s). Check your internet connection and try again.'
       : (e.message === 'NO_API_KEY'
-        ? 'Connection error — please try again.'
+        ? 'No API key set. Click Update API Key in the sidebar.'
         : 'Connection error: ' + e.message);
     document.getElementById('aiMainText').innerHTML = `<span style="color:var(--red)">⚠ ${errDetail}</span>`;
     document.getElementById('aiResultSection').classList.add('show');
@@ -1956,7 +1807,7 @@ async function askFollowUp() {
   const ctx = `Event: ${lastAnalysis.name}, ${lastAnalysis.guests} guests, ${lastAnalysis.svcType} service. Menu: ${lastAnalysis.recipe}. Food cost: $${lastAnalysis.foodTotal?.toFixed(0)}, Labor: $${lastAnalysis.labor?.toFixed(0)}.`;
   try {
     let fuHeaders;
-    const fuHeaders = apiHeaders();
+    try { fuHeaders = apiHeaders(); } catch(e) { showToast('Add your API key first.'); btn.disabled=false; btn.textContent='Ask AI ›'; return; }
     const res = await fetch("/api/ai", {
       method:"POST", headers:fuHeaders,
       body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, messages:[{role:"user",content:`ChefBid AI. Context: ${ctx}\n\nChef asks: ${q}\n\nAnswer concisely, chef-to-chef, with specific numbers.`}] })
@@ -1983,7 +1834,7 @@ async function getPricingAdvice() {
   el.innerHTML = '<div class="ai-badge"><div class="ai-dot"></div> AI PRICING STRATEGY</div><div class="ai-text">Analyzing...</div>';
   try {
     let fuHeaders;
-    const fuHeaders = apiHeaders();
+    try { fuHeaders = apiHeaders(); } catch(e) { showToast('Add your API key first.'); btn.disabled=false; btn.textContent='Ask AI ›'; return; }
     const res = await fetch("/api/ai", {
       method:"POST", headers:fuHeaders,
       body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, messages:[{role:"user",content:`You are ChefBid AI, a pricing strategist for catering businesses.\n\nEvent context: ${ctx||'Not provided'}\nTotal cost breakdown: Food $${food}, Labor $${labor}, Overhead $${overhead}, Total cost $${totalCost}, Guests: ${guests}\n\nProvide:\n1. Market rate range for this type of event in the US (per person and total)\n2. Three pricing tiers: Budget, Standard, Premium with rationale\n3. What margin percentage to target and why\n4. Any upsell opportunities (bar service, dessert station, etc.)\n5. One negotiation tip for dealing with budget-conscious clients\n\nBe specific with dollar amounts. Speak like a successful caterer coaching a peer.`}] })
@@ -2314,352 +2165,54 @@ function clearForm() {
   lastAnalysis=null;
 }
 
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
 // ═══════════════════════════════════════════════
-// STRIPE INTEGRATION
+// STRIPE CONFIG
 // ═══════════════════════════════════════════════
 const STRIPE_PK = 'pk_test_51S6zF2HpRjFN2n0meHmhKs5NeKyYdGn8b9HUew94nxPsSZBpf385xd4N3oYx2EwsXApPPJs6AIQIEIp8PcYQshRT00ITpSRMRv';
 const PLANS = {
-  basic: { priceId: 'price_1TLcNkHpRjFN2n0m2llx9Mi3', name: 'Basic', amount: '$19/mo' },
-  pro:   { priceId: 'price_1TORLzHpRjFN2n0mqlRKR0EB', name: 'PRO',   amount: '$29/mo' }
+  basic: { priceId: 'price_1TLcNkHpRjFN2n0m2llx9Mi3', name: 'Basic', amount: 19 },
+  pro:   { priceId: 'price_1TORLzHpRjFN2n0mqlRKR0EB', name: 'PRO',   amount: 29 }
 };
-
 let stripeInstance = null;
 function getStripe() {
   if (!stripeInstance) stripeInstance = Stripe(STRIPE_PK);
   return stripeInstance;
 }
-
-// Selected plan during signup
-let selectedPlan = 'pro';
-function selectPlan(plan) {
-  selectedPlan = plan;
-  const basicCard = document.getElementById('planBasicCard');
-  const proCard = document.getElementById('planProCard');
-  if (!basicCard || !proCard) return;
-  if (plan === 'basic') {
-    basicCard.style.border = '1px solid rgba(255,255,255,0.5)';
-    basicCard.style.background = 'rgba(255,255,255,0.08)';
-    proCard.style.border = '1px solid rgba(255,255,255,0.15)';
-    proCard.style.background = 'rgba(255,255,255,0.03)';
-  } else {
-    proCard.style.border = '1px solid rgba(184,134,11,0.6)';
-    proCard.style.background = 'rgba(184,134,11,0.08)';
-    basicCard.style.border = '1px solid rgba(255,255,255,0.15)';
-    basicCard.style.background = 'rgba(255,255,255,0.03)';
-  }
-}
-
-// Start Stripe Checkout — redirects to Stripe hosted page
 async function startCheckout(plan) {
-  const planData = PLANS[plan];
-  if (!planData) return;
-
-  // Save pending plan so we can activate after return
-  if (currentUser) DB.set('pendingPlan_' + currentUser.email, plan);
-
+  const p = PLANS[plan] || PLANS.pro;
+  showToast('Redirecting to secure payment...');
   try {
-    showToast('Redirecting to secure payment...');
     const stripe = getStripe();
     const result = await stripe.redirectToCheckout({
-      lineItems: [{ price: planData.priceId, quantity: 1 }],
+      lineItems: [{ price: p.priceId, quantity: 1 }],
       mode: 'subscription',
-      successUrl: window.location.href + '?payment=success&plan=' + plan,
-      cancelUrl: window.location.href + '?payment=cancel',
+      successUrl: window.location.origin + '/?payment=success&plan=' + plan,
+      cancelUrl: window.location.origin + '/?payment=cancel',
       customerEmail: currentUser ? currentUser.email : undefined,
     });
-    if (result.error) {
-      showToast('Payment error: ' + result.error.message);
-      console.error('Stripe error:', result.error);
-    }
-  } catch (err) {
-    showToast('Could not start checkout. Please try again.');
-    console.error('Checkout error:', err);
-  }
-}
-
-// Handle return from Stripe checkout
-function handleStripeReturn() {
-  const params = new URLSearchParams(window.location.search);
-  const payment = params.get('payment');
-  const plan = params.get('plan');
-  if (!payment) return;
-
-  // Clean URL
-  window.history.replaceState({}, document.title, window.location.pathname);
-
-  if (payment === 'success' && plan && currentUser) {
-    activateUserPlan(currentUser.email, plan);
-    showToast('🎉 Payment successful! Welcome to ChefBid ' + (PLANS[plan]?.name || plan) + '!');
-  } else if (payment === 'cancel') {
-    showToast('Payment cancelled. Choose a plan to continue.');
-    showPricingScreen();
-  }
-}
-
-// Activate plan after successful payment
-function activateUserPlan(email, plan) {
-  const users = DB.get('users') || {};
-  if (users[email]) {
-    users[email].plan = plan;
-    users[email].planActivated = new Date().toISOString();
-    DB.set('users', users);
-  }
-  if (currentUser) {
-    currentUser.plan = plan;
-    DB.set('currentUser', currentUser);
-  }
-  DB.del('pendingPlan_' + email);
-  updatePlanUI(plan);
-}
-
-// Get current user plan
-function getUserPlan() {
-  if (!currentUser) return null;
-  const users = DB.get('users') || {};
-  return (users[currentUser.email] && users[currentUser.email].plan) || null;
-}
-
-// Update UI based on plan
-function updatePlanUI(plan) {
-  const planDisplay = document.getElementById('userPlanDisplay');
-  const planBadge = document.getElementById('authPlanBadge');
-  if (planDisplay) planDisplay.textContent = plan === 'pro' ? '✦ PRO PLAN' : 'BASIC PLAN';
-  if (planBadge) planBadge.textContent = plan === 'pro' ? '✦ PRO PLAN · All Features Unlocked' : 'BASIC PLAN · Upgrade for AI & Payments';
-
-  // Show/hide client payment nav item
-  const cpNav = document.getElementById('nav-clientpay');
-  if (cpNav) cpNav.style.display = 'flex';
-
-  // Show/hide PRO gate on client payments page
-  const gate = document.getElementById('clientPayGate');
-  const content = document.getElementById('clientPayContent');
-  if (gate && content) {
-    if (plan === 'pro') {
-      gate.style.display = 'none';
-      content.style.display = 'block';
-    } else {
-      gate.style.display = 'block';
-      content.style.display = 'none';
-    }
-  }
-}
-
-// Show pricing screen
-function showPricingScreen() {
-  document.getElementById('appShell').style.display = 'none';
-  const ps = document.getElementById('pricingScreen');
-  ps.style.display = 'flex';
-}
-
-// ═══════════════════════════════════════════════
-// CLIENT PAYMENT LINKS
-// ═══════════════════════════════════════════════
-let currentPaymentLink = '';
-let currentPaymentMeta = {};
-
-async function createPaymentLink() {
-  const plan = getUserPlan();
-  if (plan !== 'pro') {
-    showToast('Upgrade to PRO to create client payment links');
-    return;
-  }
-
-  const clientName = document.getElementById('cpClientName').value.trim();
-  const desc = document.getElementById('cpDesc').value.trim();
-  const amount = parseFloat(document.getElementById('cpAmount').value);
-  const email = document.getElementById('cpEmail').value.trim();
-
-  if (!clientName) { showToast('Please enter a client name'); return; }
-  if (!desc) { showToast('Please enter an event description'); return; }
-  if (!amount || amount < 1) { showToast('Please enter a valid amount'); return; }
-
-  showToast('Creating payment link...');
-
-  // Use Stripe Payment Links via API
-  // NOTE: In production this call should go through your Railway backend
-  // For now we create a Stripe Checkout link client-side
-  try {
-    const stripe = getStripe();
-    // We create a checkout session via redirectToCheckout with custom amount
-    // For real payment links you need a backend — this creates a hosted checkout
-    const amountInCents = Math.round(amount * 100);
-
-    // Build a Stripe Payment Link URL using the Stripe dashboard format
-    // Since client-side can't create Payment Links directly, we use Checkout
-    const checkoutParams = {
-      mode: 'payment',
-      successUrl: window.location.href + '?clientpay=success&client=' + encodeURIComponent(clientName),
-      cancelUrl: window.location.href + '?clientpay=cancel',
-      lineItems: [{
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: desc,
-            description: 'Catering services for ' + clientName
-          },
-          unit_amount: amountInCents
-        },
-        quantity: 1
-      }]
-    };
-
-    if (email) checkoutParams.customerEmail = email;
-
-    // Since we can't create a shareable link client-side without a backend,
-    // we'll generate a pre-filled Stripe checkout that the chef can share
-    // by saving the parameters and opening a hosted checkout
-    const linkData = {
-      client: clientName,
-      desc,
-      amount,
-      email,
-      created: new Date().toLocaleDateString(),
-      id: 'CP-' + Date.now()
-    };
-
-    // Save to payment history
-    const history = DB.get('paymentLinks_' + currentUser.email) || [];
-    history.unshift(linkData);
-    DB.set('paymentLinks_' + currentUser.email, history);
-
-    currentPaymentMeta = linkData;
-
-    // Display the result card with instructions
-    const resultCard = document.getElementById('cpResultCard');
-    const linkDisplay = document.getElementById('cpLinkDisplay');
-    const linkMeta = document.getElementById('cpLinkMeta');
-
-    // Create a checkout URL the chef sends directly to client
-    // This opens Stripe checkout pre-filled for the client
-    const baseUrl = window.location.href.split('?')[0];
-    const payUrl = `${baseUrl}?pay=1&client=${encodeURIComponent(clientName)}&desc=${encodeURIComponent(desc)}&amt=${amountInCents}`;
-
-    currentPaymentLink = payUrl;
-    linkDisplay.textContent = payUrl;
-    linkMeta.innerHTML = `
-      <strong>${clientName}</strong> · ${desc}<br>
-      Amount: <strong>$${amount.toFixed(2)}</strong>${email ? ' · ' + email : ''}<br>
-      Created: ${linkData.created} · ID: ${linkData.id}
-    `;
-    resultCard.style.display = 'block';
-    showToast('✓ Payment link created!');
-
+    if (result.error) showToast('Payment error: ' + result.error.message);
   } catch(err) {
-    console.error('Payment link error:', err);
-    showToast('Error creating link. Check console for details.');
+    showToast('Could not start checkout: ' + err.message);
   }
 }
-
-function copyPaymentLink() {
-  if (!currentPaymentLink) return;
-  navigator.clipboard.writeText(currentPaymentLink).then(() => {
-    showToast('✓ Payment link copied to clipboard!');
-  }).catch(() => {
-    // Fallback
-    const ta = document.createElement('textarea');
-    ta.value = currentPaymentLink;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('✓ Copied!');
-  });
-}
-
-function emailPaymentLink() {
-  if (!currentPaymentLink || !currentPaymentMeta.client) return;
-  const subject = encodeURIComponent('Payment Request — ' + currentPaymentMeta.desc);
-  const body = encodeURIComponent(
-    'Hi ' + currentPaymentMeta.client + ',\n\n' +
-    'Thank you for choosing our catering services! Your balance of $' + (currentPaymentMeta.amount||0).toFixed(2) + ' is now due for:\n\n' +
-    currentPaymentMeta.desc + '\n\n' +
-    'Click the secure payment link below to pay by card:\n\n' +
-    currentPaymentLink + '\n\n' +
-    'Questions? Reply to this email.\n\n' +
-    'Thank you,\n' + (currentUser ? currentUser.name : 'Your Chef')
-  );
-  const emailTo = currentPaymentMeta.email || '';
-  window.open('mailto:' + emailTo + '?subject=' + subject + '&body=' + body);
-}
-
-// Handle client-side payment (when a client opens a pay link)
-function handleClientPayLink() {
+// Handle Stripe return
+(function() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('pay') !== '1') return;
-
-  const client = params.get('client');
-  const desc = params.get('desc');
-  const amt = parseInt(params.get('amt'));
-
-  if (!client || !desc || !amt) return;
-
-  // Show a payment screen for the client
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('appShell').style.display = 'none';
-  document.getElementById('pricingScreen').style.display = 'none';
-
-  const payDiv = document.createElement('div');
-  payDiv.innerHTML = `
-    <div style="min-height:100vh;background:#1a1816;display:flex;align-items:center;justify-content:center;padding:20px">
-      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:40px;max-width:420px;width:100%;text-align:center">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#d4a020;margin-bottom:4px">ChefBid PRO</div>
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px">Secure Payment</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-bottom:6px">${decodeURIComponent(desc)}</div>
-        <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-bottom:24px">for ${decodeURIComponent(client)}</div>
-        <div style="font-size:3rem;font-weight:700;color:#fff;font-family:'Cormorant Garamond',serif;margin-bottom:32px">$${(amt/100).toFixed(2)}</div>
-        <button onclick="processClientPayment('${client}','${desc}',${amt})" style="width:100%;padding:16px;background:#d4a020;color:#1a1816;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:12px">
-          Pay Securely with Card →
-        </button>
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.2);font-family:'DM Mono',monospace">🔒 Secured by Stripe</div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(payDiv);
-  window.history.replaceState({}, document.title, window.location.pathname);
-}
-
-async function processClientPayment(client, desc, amtCents) {
-  try {
-    const stripe = getStripe();
-    await stripe.redirectToCheckout({
-      mode: 'payment',
-      successUrl: window.location.href + '?clientpay=success&client=' + client,
-      cancelUrl: window.location.href + '?clientpay=cancel',
-      lineItems: [{
-        price_data: {
-          currency: 'usd',
-          product_data: { name: decodeURIComponent(desc), description: 'Catering for ' + decodeURIComponent(client) },
-          unit_amount: parseInt(amtCents)
-        },
-        quantity: 1
-      }]
-    });
-  } catch(err) {
-    alert('Payment error: ' + err.message);
+  if (params.get('payment') === 'success') {
+    window.history.replaceState({}, '', '/');
+    showToast('🎉 Payment successful! Welcome to ChefBid PRO!');
+  } else if (params.get('payment') === 'cancel') {
+    window.history.replaceState({}, '', '/');
+    showToast('Payment cancelled.');
   }
-}
+})();
 
-// ═══════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', function() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('pay') === '1') {
-    handleClientPayLink();
-    return;
-  }
-  if (params.get('clientpay') === 'success') {
-    window.history.replaceState({}, document.title, window.location.pathname);
-    // Show success to client
-    document.body.innerHTML = '<div style="min-height:100vh;background:#1a1816;display:flex;align-items:center;justify-content:center"><div style="text-align:center;color:#fff"><div style="font-size:4rem;margin-bottom:16px">✅</div><div style="font-family:Cormorant Garamond,serif;font-size:2rem;color:#d4a020;margin-bottom:8px">Payment Successful!</div><div style="color:rgba(255,255,255,0.5);font-size:0.9rem">Thank you! Your payment has been received.</div></div></div>';
-    return;
-  }
-});
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  if (!t) return;
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
 </script>
 </body>
 </html>
