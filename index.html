@@ -753,15 +753,34 @@ body {
       </div>
 
       <!-- Ingredients -->
-      <div class="mono-label">INGREDIENTS & MENU</div>
+      <div class="mono-label">MENU & INGREDIENTS</div>
       <div class="card">
-        <div class="card-head">🥩 Ingredients <span style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--ink-dim);font-weight:400;margin-left:8px">Enter portion per person — totals auto-calculate</span></div>
-        <div id="ingRows"></div>
-        <button class="add-row-btn" onclick="addIng()">+ Add Ingredient</button>
-        <div style="margin-top:16px" class="field">
-          <label>Or describe the menu / paste a recipe</label>
-          <textarea id="evRecipe" placeholder="e.g. Pan-seared salmon with roasted asparagus, garlic mashed potatoes, and dinner rolls. Classic plated service."></textarea>
+        <div class="card-head">🍽️ Describe Your Menu
+          <span style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--gold);font-weight:400;margin-left:8px">AI auto-generates all ingredients + quantities</span>
         </div>
+
+        <!-- AI Menu Description -->
+        <div class="field">
+          <label>Describe your menu or paste a recipe</label>
+          <textarea id="evRecipe" rows="4" placeholder="e.g. 3-course plated dinner: Caesar salad, pan-seared salmon with roasted asparagus and garlic mashed potatoes, chocolate lava cake. Full service." style="min-height:90px"></textarea>
+        </div>
+        <button class="btn-gold btn-sm" onclick="aiParseMenu()" id="parseMenuBtn" style="width:100%;margin-bottom:16px">
+          ✦ AI — Auto-Generate Ingredients &amp; Portions
+        </button>
+        <div id="parseMenuStatus" style="display:none;text-align:center;font-size:0.8rem;color:var(--gold);font-family:'DM Mono',monospace;margin-bottom:12px">
+          ⏳ AI is calculating portions...
+        </div>
+
+        <!-- Divider -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:0.65rem;color:var(--ink-dim);font-family:'DM Mono',monospace;letter-spacing:1px">OR ADD MANUALLY</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+
+        <!-- Manual ingredient rows -->
+        <div id="ingRows"></div>
+        <button class="add-row-btn" onclick="addIng()">+ Add Ingredient Manually</button>
       </div>
 
       <!-- Scaled Totals Output -->
@@ -1103,7 +1122,13 @@ function setAuthError(msg) {
 // Auto-login if session exists
 window.addEventListener('load', () => {
   const u = DB.get('currentUser');
-  if(u) loginUser(u);
+  if(u) {
+    loginUser(u);
+  } else {
+    // Make sure auth screen is visible
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('appShell').style.display = 'none';
+  }
   // init form rows
   addIng(); addIng(); addIng();
   document.getElementById('evDate').valueAsDate = new Date();
@@ -1681,6 +1706,79 @@ function apiHeaders() {
   return { "Content-Type": "application/json" };
 }
 
+
+
+// ═══════════════════════════════════════════════
+// AI MENU PARSER
+// ═══════════════════════════════════════════════
+async function aiParseMenu() {
+  const recipe = document.getElementById('evRecipe').value.trim();
+  const guests = parseInt(document.getElementById('evGuests').value) || 0;
+  if (!recipe) { showToast('Please describe your menu first!'); return; }
+  if (!guests || guests < 1) { showToast('Please enter number of guests first!'); return; }
+
+  const btn = document.getElementById('parseMenuBtn');
+  const status = document.getElementById('parseMenuStatus');
+  btn.disabled = true;
+  btn.textContent = '⏳ AI Calculating...';
+  status.style.display = 'block';
+
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{
+          role: 'user',
+          content: `You are a professional catering chef. Calculate exact ingredients for ${guests} guests with 10% waste buffer.
+
+MENU: ${recipe}
+
+Use professional catering portions (6oz protein, 4oz starch, 3oz vegetable per person).
+Include ALL ingredients: proteins, starches, vegetables, sauces, garnishes, bread, butter, etc.
+
+Respond ONLY with raw JSON, no markdown, no explanation:
+{"ingredients":[{"name":"Salmon Fillet","portionPerPerson":6,"unit":"oz"},{"name":"Asparagus","portionPerPerson":3,"unit":"oz"}]}`
+        }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.content?.map(i => i.text || '').join('') || '';
+    const clean = text.replace(/\`\`\`json|\`\`\`/g, '').trim();
+    const parsed = JSON.parse(clean);
+    if (!parsed.ingredients?.length) throw new Error('No ingredients returned');
+
+    // Clear existing rows and populate with AI data
+    document.getElementById('ingRows').innerHTML = '';
+    parsed.ingredients.forEach(ing => {
+      const r = document.createElement('div');
+      r.className = 'row-grid ing-grid';
+      const units = ['oz','lbs','kg','cups','each','gallons','dozen','cases'];
+      const opts = units.map(u => `<option${u===ing.unit?' selected':''}>${u}</option>`).join('');
+      r.innerHTML = `
+        <div class="field"><label>Ingredient</label><input type="text" value="${ing.name.replace(/"/g,'&quot;')}" placeholder="e.g. Chicken Breast" oninput="scheduleScaling()"></div>
+        <div class="field"><label>Portion / person</label><input type="number" value="${ing.portionPerPerson}" step="0.1" min="0" oninput="scheduleScaling()"></div>
+        <div class="field"><label>Unit</label><select onchange="scheduleScaling()">${opts}</select></div>
+        <div class="field"><label>&nbsp;</label><button class="icon-btn del-btn" onclick="this.closest('.row-grid').remove();scheduleScaling()">×</button></div>`;
+      document.getElementById('ingRows').appendChild(r);
+    });
+
+    scheduleScaling();
+    showToast('✦ ' + parsed.ingredients.length + ' ingredients generated for ' + guests + ' guests!');
+    document.getElementById('ingRows').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(err) {
+    console.error('Menu parse error:', err);
+    showToast('Error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✦ AI — Auto-Generate Ingredients &amp; Portions';
+    status.style.display = 'none';
+  }
+}
 
 async function runAnalysis() {
   const guests = document.getElementById('evGuests').value || '100';
