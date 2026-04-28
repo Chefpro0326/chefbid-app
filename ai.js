@@ -1,4 +1,4 @@
-// ChefBid PRO v3
+// ChefBid PRO v3 - final
 const server = Bun.serve({
   port: process.env.PORT || 8080,
   async fetch(req) {
