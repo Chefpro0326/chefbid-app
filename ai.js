@@ -22,14 +22,17 @@ const server = Bun.serve({
       return new Response(JSON.stringify({keySet:!!key,keyLength:key.length,keyStart:key.substring(0,20),version:"v3"}),{headers:{...cors,"Content-Type":"application/json"}});
     }
     try {
-      const file = Bun.file("index.html");
-      if (!await file.exists()) return new Response("Not found",{status:404,headers:cors});
-      return new Response(await file.text(),{headers:{...cors,"Content-Type":"text/html;charset=utf-8"}});
-    } catch(e) {
-      return new Response("Error:"+e.message,{status:500,headers:cors});
-    }
-  },
-  error(e){return new Response("Error:"+e.message,{status:500});}
-});
-console.log("ChefBid PRO v3 port "+server.port);
-console.log("API Key:",process.env.ANTHROPIC_API_KEY?"YES":"NO");
+  const file = Bun.file("index.html");
+  const exists = await file.exists();
+  console.log("index.html exists:", exists);
+  console.log("cwd:", process.cwd());
+  if (!exists) {
+    // List files to debug
+    const proc = Bun.spawnSync(["ls", "-la"]);
+    const files = new TextDecoder().decode(proc.stdout);
+    return new Response("Files: " + files, {status:200, headers:cors});
+  }
+  return new Response(await file.text(), {headers:{...cors,"Content-Type":"text/html;charset=utf-8"}});
+} catch(e) {
+  return new Response("Error:"+e.message, {status:500, headers:cors});
+}
