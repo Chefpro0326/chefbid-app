@@ -1,1 +1,12 @@
-
+{
+  "name": "chefbid-pro",
+  "version": "1.0.0",
+  "description": "ChefBid PRO - AI Catering Intelligence",
+  "scripts": {
+    "start": "bun run ai.js"
+  },
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=18.0.0"
+  }
+}
