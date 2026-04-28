@@ -1,38 +1,24 @@
-// ChefBid PRO v3 - final
 const server = Bun.serve({
   port: process.env.PORT || 8080,
   async fetch(req) {
     const url = new URL(req.url);
-    const cors = {"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"Content-Type","Cache-Control":"no-cache"};
-    if (req.method === "OPTIONS") return new Response(null, {status:204,headers:cors});
-    if (url.pathname === "/api/ai" && req.method === "POST") {
-      const key = process.env.ANTHROPIC_API_KEY;
-      if (!key) return new Response(JSON.stringify({error:{message:"API key not set"}}),{status:500,headers:{...cors,"Content-Type":"application/json"}});
-      try {
-        const body = await req.json();
-        const r = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key.trim(),"anthropic-version":"2023-06-01"},body:JSON.stringify(body)});
-        const data = await r.json();
-        return new Response(JSON.stringify(data),{status:r.status,headers:{...cors,"Content-Type":"application/json"}});
-      } catch(e) {
-        return new Response(JSON.stringify({error:{message:e.message}}),{status:500,headers:{...cors,"Content-Type":"application/json"}});
-      }
-    }
+    const h = {"Access-Control-Allow-Origin":"*","Content-Type":"text/plain"};
+    if (req.method === "OPTIONS") return new Response("ok",{status:204,headers:h});
     if (url.pathname === "/api/debug") {
-      const key = process.env.ANTHROPIC_API_KEY||'';
-      return new Response(JSON.stringify({keySet:!!key,keyLength:key.length,keyStart:key.substring(0,20),version:"v3"}),{headers:{...cors,"Content-Type":"application/json"}});
+      const k = process.env.ANTHROPIC_API_KEY||"";
+      return new Response(JSON.stringify({ok:true,keySet:!!k,keyLen:k.length,version:"v4"}),{headers:{...h,"Content-Type":"application/json"}});
     }
-    try {
-  const file = Bun.file("index.html");
-  const exists = await file.exists();
-  console.log("index.html exists:", exists);
-  console.log("cwd:", process.cwd());
-  if (!exists) {
-    // List files to debug
-    const proc = Bun.spawnSync(["ls", "-la"]);
-    const files = new TextDecoder().decode(proc.stdout);
-    return new Response("Files: " + files, {status:200, headers:cors});
+    if (url.pathname === "/api/ai" && req.method === "POST") {
+      const k = process.env.ANTHROPIC_API_KEY;
+      if(!k) return new Response(JSON.stringify({error:{message:"no key"}}),{status:500,headers:{...h,"Content-Type":"application/json"}});
+      const body = await req.json();
+      const r = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":k.trim(),"anthropic-version":"2023-06-01"},body:JSON.stringify(body)});
+      const d = await r.json();
+      return new Response(JSON.stringify(d),{status:r.status,headers:{...h,"Content-Type":"application/json"}});
+    }
+    const f = Bun.file("index.html");
+    if(await f.exists()) return new Response(f,{headers:{...h,"Content-Type":"text/html;charset=utf-8"}});
+    return new Response("not found",{status:404,headers:h});
   }
-  return new Response(await file.text(), {headers:{...cors,"Content-Type":"text/html;charset=utf-8"}});
-} catch(e) {
-  return new Response("Error:"+e.message, {status:500, headers:cors});
-}
+});
+console.log("running port",server.port);
