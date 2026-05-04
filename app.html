@@ -1071,24 +1071,25 @@ const FREE_EVENT_LIMIT = 3;
 
 function isPro() {
   if(!currentUser) return false;
-  return DB.get('pro_'+currentUser.email) === true;
+  const status = DB.get('pro_'+currentUser.email);
+  console.log('ChefBid isPro check:', currentUser.email, '→', status);
+  return status === true;
 }
 
 function getMonthlyEventCount() {
   if(!currentUser) return 0;
   const events = DB.get('events_'+currentUser.email) || [];
-  const now = new Date();
-  const monthly = events.filter(e => {
-    if(!e.timestamp) return true; // count events without timestamp toward limit
-    const d = new Date(e.timestamp);
-    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-  }).length;
-  return monthly;
+  // Count ALL events — fallback to total if timestamps unreliable
+  return events.length;
 }
 
 function checkFreeLimit() {
-  if(isPro()) return true;
+  if(!currentUser) return true;
+  // Never block if pro
+  const proStatus = DB.get('pro_'+currentUser.email);
+  if(proStatus === true) return true;
   const count = getMonthlyEventCount();
+  console.log('ChefBid free limit check — events:', count, 'limit:', FREE_EVENT_LIMIT, 'isPro:', proStatus);
   if(count >= FREE_EVENT_LIMIT) {
     showUpgradeModal();
     return false;
