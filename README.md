@@ -11,6 +11,7 @@ AI-Powered Catering Intelligence for Serious Chefs.
 - AI powered by Anthropic Claude API
 - Hosted on Vercel
 
+
 ## Deploying
 1. Push to GitHub
 2. Import repo on vercel.com
