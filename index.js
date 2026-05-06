@@ -1,51 +1,39 @@
-import { Hono } from "hono@4";
-import { cors } from 'hono/cors';
-import { readFileSync } from 'fs';
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { readFileSync } from "fs";
 
 const app = new Hono();
 app.use("/*", cors());
 
-// ── SERVE STATIC HTML FILES ──
+// ── SERVE HTML FILES ──
 app.get("/", (c) => {
-  try {
-    const html = readFileSync('./index.html', 'utf8');
-    return c.html(html);
-  } catch(e) {
-    return c.text("index.html not found: " + e.message, 404);
-  }
+  try { return c.html(readFileSync("./index.html", "utf8")); }
+  catch(e) { return c.text("index.html not found", 404); }
 });
 
 app.get("/app", (c) => {
-  try {
-    const html = readFileSync('./app.html', 'utf8');
-    return c.html(html);
-  } catch(e) {
-    return c.text("app.html not found: " + e.message, 404);
-  }
+  try { return c.html(readFileSync("./app.html", "utf8")); }
+  catch(e) { return c.text("app.html not found", 404); }
 });
 
 app.get("/app.html", (c) => {
-  try {
-    const html = readFileSync('./app.html', 'utf8');
-    return c.html(html);
-  } catch(e) {
-    return c.text("app.html not found: " + e.message, 404);
-  }
+  try { return c.html(readFileSync("./app.html", "utf8")); }
+  catch(e) { return c.text("app.html not found", 404); }
 });
 
 app.get("/privacy", (c) => {
-  try { return c.html(readFileSync('./privacy.html', 'utf8')); }
+  try { return c.html(readFileSync("./privacy.html", "utf8")); }
   catch(e) { return c.text("Not found", 404); }
 });
 
 app.get("/terms", (c) => {
-  try { return c.html(readFileSync('./terms.html', 'utf8')); }
+  try { return c.html(readFileSync("./terms.html", "utf8")); }
   catch(e) { return c.text("Not found", 404); }
 });
 
 // ── AI PROXY ──
 app.post("/api/ai", async (c) => {
-  const apiKey = process.env.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if(!apiKey) return c.json({ error: { message: "API key not configured." } }, 500);
   try {
     const body = await c.req.json();
@@ -60,12 +48,12 @@ app.post("/api/ai", async (c) => {
     });
     const data = await response.json();
     return c.json(data, response.status);
-  } catch(error) {
-    return c.json({ error: { message: error.message } }, 500);
+  } catch(e) {
+    return c.json({ error: { message: e.message } }, 500);
   }
 });
 
-// ── CREATE CHECKOUT SESSION ──
+// ── CREATE CHECKOUT ──
 app.post("/api/create-checkout", async (c) => {
   const stripeSecret = process.env.STRIPE_SECRET_KEY;
   const priceId = process.env.STRIPE_PRICE_ID;
@@ -73,15 +61,15 @@ app.post("/api/create-checkout", async (c) => {
   try {
     const { email, userId } = await c.req.json();
     const params = new URLSearchParams({
-      'mode': 'subscription',
-      'payment_method_types[0]': 'card',
-      'line_items[0][price]': priceId,
-      'line_items[0][quantity]': '1',
-      'success_url': 'https://chefbidpro.com/app?upgrade=success',
-      'cancel_url': 'https://chefbidpro.com/app?upgrade=cancelled',
-      'customer_email': email,
-      'client_reference_id': userId,
-      'metadata[userId]': userId
+      "mode": "subscription",
+      "payment_method_types[0]": "card",
+      "line_items[0][price]": priceId,
+      "line_items[0][quantity]": "1",
+      "success_url": "https://chefbidpro.com/app?upgrade=success",
+      "cancel_url": "https://chefbidpro.com/app?upgrade=cancelled",
+      "customer_email": email,
+      "client_reference_id": userId,
+      "metadata[userId]": userId
     });
     const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
@@ -94,8 +82,8 @@ app.post("/api/create-checkout", async (c) => {
     const session = await response.json();
     if(session.error) return c.json({ error: session.error.message }, 400);
     return c.json({ url: session.url });
-  } catch(error) {
-    return c.json({ error: error.message }, 500);
+  } catch(e) {
+    return c.json({ error: e.message }, 500);
   }
 });
 
@@ -110,13 +98,12 @@ app.post("/api/verify-subscription", async (c) => {
     });
     const custData = await custRes.json();
     if(!custData.data?.length) return c.json({ isPro: false });
-    const customerId = custData.data[0].id;
-    const subRes = await fetch(`https://api.stripe.com/v1/subscriptions?customer=${customerId}&status=active&limit=1`, {
+    const subRes = await fetch(`https://api.stripe.com/v1/subscriptions?customer=${custData.data[0].id}&status=active&limit=1`, {
       headers: { "Authorization": `Bearer ${stripeSecret}` }
     });
     const subData = await subRes.json();
     return c.json({ isPro: subData.data?.length > 0 });
-  } catch(error) {
+  } catch(e) {
     return c.json({ isPro: false });
   }
 });
@@ -144,17 +131,16 @@ app.post("/api/cancel-subscription", async (c) => {
     });
     const cancelData = await cancelRes.json();
     return c.json({ success: true, endsAt: cancelData.current_period_end });
-  } catch(error) {
-    return c.json({ error: error.message }, 500);
+  } catch(e) {
+    return c.json({ error: e.message }, 500);
   }
 });
 
 app.get("/debug", (c) => {
-  const key = process.env.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
-  return c.json({ hasKey: !!key, keyStart: key ? key.slice(0,12) : 'NOT FOUND' });
+  const key = process.env.ANTHROPIC_API_KEY;
+  return c.json({ hasKey: !!key, keyStart: key ? key.slice(0,12) : "NOT FOUND" });
 });
 
-Bun.serve({
-  port: import.meta.env.PORT ?? 3000,
-  fetch: app.fetch,
-});
+const port = process.env.PORT || 3000;
+Bun.serve({ port, fetch: app.fetch });
+console.log("ChefBid PRO server running on port", port);
