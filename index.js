@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-// ChefBid PRO v3 - Stripe enabled
+import { cors } from "hono/cors";
 import { readFileSync } from "fs";
+// ChefBid PRO v3 - Stripe enabled
 
 const app = new Hono();
 app.use("/*", cors());
