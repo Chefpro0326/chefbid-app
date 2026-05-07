@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+// ChefBid PRO v2 - with Stripe
 import { cors } from "hono/cors";
 import { readFileSync } from "fs";
 
