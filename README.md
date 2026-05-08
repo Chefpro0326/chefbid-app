@@ -1,4 +1,4 @@
-# ChefBid PRO
+ # ChefBid PRO
 
 AI-Powered Catering Intelligence for Serious Chefs.
 
