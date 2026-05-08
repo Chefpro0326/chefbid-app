@@ -3,11 +3,11 @@ import { cors } from "hono/cors";
 import { readFileSync } from "fs";
 
 // ChefBid PRO v5 - ENV check
-const AKEY  = import.meta.env.ANTHROPIC_API_KEY    || process.env.ANTHROPIC_API_KEY    || "";
-const SKEY  = import.meta.env.STRIPE_SECRET_KEY    || process.env.STRIPE_SECRET_KEY    || "";
-const SPRO  = import.meta.env.STRIPE_PRICE_ID      || process.env.STRIPE_PRICE_ID      || "";
-const SBAS  = import.meta.env.STRIPE_BASIC_PRICE_ID|| process.env.STRIPE_BASIC_PRICE_ID|| "";
-const PORT  = import.meta.env.PORT                 || process.env.PORT                 || "3000";
+const AKEY  = process.env.ANTHROPIC_API_KEY    || "";
+const SKEY  = process.env.STRIPE_SECRET_KEY    || "";
+const SPRO  = process.env.STRIPE_PRICE_ID      || "";
+const SBAS  = process.env.STRIPE_BASIC_PRICE_ID|| "";
+const PORT  = process.env.PORT || "3000";
 
 console.log("ChefBid v5 | Anthropic:", !!AKEY, "| Stripe:", !!SKEY, "| PriceID:", !!SPRO);
 
@@ -47,7 +47,6 @@ app.get("/debug", (c) => {
     stripeStart:      SKEY ? SKEY.slice(0,12) : "NOT FOUND",
     hasPriceId:       !!SPRO,
     hasBasicPriceId:  !!SBAS,
-    importMetaKeys:   Object.keys(import.meta.env).filter(k => k.includes('STRIPE') || k.includes('ANTHROPIC')),
     processEnvKeys:   Object.keys(process.env).filter(k => k.includes('STRIPE') || k.includes('ANTHROPIC'))
   });
 });
@@ -148,5 +147,6 @@ app.post("/api/cancel-subscription", async (c) => {
   }
 });
 
-Bun.serve({ port: parseInt(PORT), fetch: app.fetch });
+import { serve } from "@hono/node-server";
+serve({ fetch: app.fetch, port: parseInt(PORT) });
 console.log("ChefBid PRO v5 running on port", PORT);
