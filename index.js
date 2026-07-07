@@ -3,10 +3,10 @@ import { cors } from "hono/cors";
 import { readFileSync } from "fs";
 
 // ChefBid PRO v5 - ENV check
-const AKEY  = process.env.ANTHROPIC_API_KEY    || "";
-const SKEY  = process.env.STRIPE_SECRET_KEY    || "";
-const SPRO  = process.env.STRIPE_PRICE_ID      || "";
-const SBAS  = process.env.STRIPE_BASIC_PRICE_ID|| "";
+const AKEY  = (process.env.ANTHROPIC_API_KEY    || "").trim();
+const SKEY  = (process.env.STRIPE_SECRET_KEY    || "").trim();
+const SPRO  = (process.env.STRIPE_PRICE_ID      || "").trim();
+const SBAS  = (process.env.STRIPE_BASIC_PRICE_ID|| "").trim();
 const PORT  = process.env.PORT || "3000";
 
 console.log("ChefBid v5 | Anthropic:", !!AKEY, "| Stripe:", !!SKEY, "| PriceID:", !!SPRO);
