@@ -50,7 +50,20 @@ app.get("/debug", (c) => {
     processEnvKeys:   Object.keys(process.env).filter(k => k.includes('STRIPE') || k.includes('ANTHROPIC'))
   });
 });
-
+app.get("/debug", (c) => {
+  return c.json({
+    version: "v5",
+    hasAnthropicKey:  !!AKEY,
+    akeyStart:        AKEY.slice(0,15),
+    akeyEnd:          AKEY.slice(-6),
+    akeyLen:          AKEY.length,
+    hasStripeSecret:  !!SKEY,
+    stripeStart:      SKEY ? SKEY.slice(0,12) : "NOT FOUND",
+    hasPriceId:       !!SPRO,
+    hasBasicPriceId:  !!SBAS,
+    processEnvKeys:   Object.keys(process.env).filter(k => k.includes('STRIPE') || k.includes('ANTHROPIC'))
+  });
+});
 app.post("/api/ai", async (c) => {
   if(!AKEY) return c.json({ error: { message: "API key not configured." } }, 500);
   try {
