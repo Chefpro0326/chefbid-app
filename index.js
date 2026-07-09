@@ -38,23 +38,6 @@ app.get("/terms", (c) => {
   try { return c.html(readFileSync("./terms.html", "utf8")); }
   catch(e) { return c.text("Not found", 404); }
 });
-
-// TEMPORARY diagnostic route - shows key fingerprint so we can compare to the working key.
-// DELETE THIS ROUTE once the quote works.
-app.get("/debug", (c) => {
-  return c.json({
-    version: "v6",
-    hasAnthropicKey:  !!AKEY,
-    akeyStart:        AKEY.slice(0, 15),
-    akeyEnd:          AKEY.slice(-6),
-    akeyLen:          AKEY.length,
-    hasStripeSecret:  !!SKEY,
-    hasPriceId:       !!SPRO,
-    hasBasicPriceId:  !!SBAS,
-    processEnvKeys:   Object.keys(process.env).filter(k => k.includes('STRIPE') || k.includes('ANTHROPIC'))
-  });
-});
-
 app.post("/api/ai", async (c) => {
   if(!AKEY) return c.json({ error: { message: "API key not configured." } }, 500);
   try {
